@@ -3,7 +3,7 @@ requires 'Carp';
 requires 'Exporter';
 requires 'Type::Tiny';
 requires 'Hash::Util';
-requires 'Scalar::Util'
+requires 'Scalar::Util';
 
 on 'test' => sub {
   requires 'Test2::Suite';
