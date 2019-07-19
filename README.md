@@ -4,6 +4,7 @@ Sub::TypedAnon - Create simple typed anonymous subroutine.
 
 # SYNOPSIS
 
+    use Test2::V0;
     use Sub::TypedAnon;
 
     my $sum = anon [ Int, Int ], Int, sub {
@@ -11,6 +12,7 @@ Sub::TypedAnon - Create simple typed anonymous subroutine.
       $x + $y;
     };
     is $sum->(2, 5), 7;
+    done_testing;
 
 # DESCRIPTION
 

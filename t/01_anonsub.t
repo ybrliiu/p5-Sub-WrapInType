@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use Test2::V0;
 use Types::Standard qw( Int );
-use Sub::TypedAnon;
+use Sub::TypedAnon qw( anon get_info );
 
 subtest 'Create typed anonymous subroutine' => sub {
   
@@ -49,6 +49,24 @@ subtest 'Run typed anonymous subroutine' => sub {
     $x + $y;
   };
   is $sum->(2, 5), 7;
+
+};
+
+subtest 'Confirm get_info' => sub {
+  
+  my $orig_info = +{
+    params => [ Int, Int ],
+    isa    => Int,
+    code   => sub {
+      my ($x, $y) = @_;
+      $x + $y;
+    },
+  };
+  my $typed_code = anon @$orig_info{qw( params isa code )};
+  my $info = get_info($typed_code);
+  is $info->{isa} . '', $orig_info->{isa} . '';
+  is $info->{params} . '', $orig_info->{params} . '';
+  is $info->{code}, $orig_info->{code};
 
 };
 
