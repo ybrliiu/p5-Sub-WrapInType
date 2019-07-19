@@ -13,6 +13,13 @@ subtest 'Create typed anonymous subroutine' => sub {
       $x + $y;
     };
   };
+
+  ok lives {
+    anon +{ x => Int, y => Int }, Int, sub {
+      my ($x, $y) = @{ shift() }{qw( x y )};
+      $x + $y;
+    };
+  };
   
   ok lives {
     anon(
@@ -25,7 +32,23 @@ subtest 'Create typed anonymous subroutine' => sub {
     );
   };
 
+  ok lives {
+    anon(
+      params => +{
+        x => Int,
+        y => Int,
+      },
+      isa    => Int,
+      code   => sub {
+        my ($x, $y) = @{ shift() }{qw( x y )};
+        $x + $y;
+      },
+    );
+  };
+
   ok dies { anon }, 'Too few arguments.';
+
+  ok dies { anon \(my $anon), Int, sub {} };
 
   ok dies { anon [ 'Int', 'Int' ], 'Int', sub {} }, 'Arguments is not typeconstraint object.';
   
@@ -38,7 +61,7 @@ subtest 'Create typed anonymous subroutine' => sub {
         $x + $y;
       },
     );
-  }, 'Wrong key.'
+  }, 'Wrong key.';
   
 };
 
@@ -49,6 +72,12 @@ subtest 'Run typed anonymous subroutine' => sub {
     $x + $y;
   };
   is $sum->(2, 5), 7;
+
+  my $sub = anon +{ x => Int, y => Int }, Int, sub {
+    my ($x, $y) = @{ shift() }{qw( x y )};
+    $x - $y;
+  };
+  is $sub->(x => 10, y => 5), 5;
 
 };
 
