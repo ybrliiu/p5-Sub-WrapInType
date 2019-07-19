@@ -27,14 +27,30 @@ sub anon {
     }
   };
 
-  for my $type (@$params_types, $return_type) {
-    Carp::croak 'Wrong arguments.'
-      unless Scalar::Util::blessed($type) && $type->can('check') && $type->can('get_message');
+  {
+    my @types = do {
+      if (ref $params_types eq 'ARRAY') {
+        @$params_types;
+      }
+      elsif (ref $params_types eq 'HASH') {
+        values %$params_types;
+      }
+      else {
+        Carp::croak 'Wrong arguments.'
+      }
+    };
+    for my $type (@types, $return_type) {
+      Carp::croak 'Wrong arguments.'
+        unless Scalar::Util::blessed($type) && $type->can('check') && $type->can('get_message');
+    }
   }
 
+  my $checker = ref $params_types eq 'ARRAY'
+    ? Type::Params::compile(@$params_types)
+    : Type::Params::compile_named(%$params_types);
+
   my $typed_code = sub {
-    state $check = Type::Params::compile(@$params_types);
-    my $return_value = $code->( $check->(@_) );
+    my $return_value = $code->( $checker->(@_) );
     die $return_type->get_message($return_value) unless $return_type->check($return_value);
     $return_value;
   };
