@@ -1,3 +1,5 @@
+[![CircleCI](https://circleci.com/gh/ybrliiu/p5-Sub-TypedAnon/tree/master.svg?style=svg)](https://circleci.com/gh/ybrliiu/p5-Sub-TypedAnon/tree/master)
+
 # NAME
 
 Sub::TypedAnon - Create simple typed anonymous subroutine.
