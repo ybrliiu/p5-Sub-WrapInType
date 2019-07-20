@@ -1,7 +1,7 @@
 {
-   "abstract" : "It's new $module",
+   "abstract" : "Create simple typed anonymous subroutine easily.",
    "author" : [
-      "mp0liiu <raian@reeshome.org>"
+      "ybrliiu <raian@reeshome.org>"
    ],
    "dynamic_config" : 0,
    "generated_by" : "Minilla/v3.1.4, CPAN::Meta::Converter version 2.150010",
@@ -42,16 +42,32 @@
       },
       "runtime" : {
          "requires" : {
-            "perl" : "5.008001"
+            "Carp" : "0",
+            "Exporter" : "0",
+            "Hash::Util" : "0",
+            "Scalar::Util" : "0",
+            "Type::Tiny" : "0",
+            "perl" : "5.010001"
          }
       },
       "test" : {
          "requires" : {
-            "Test::More" : "0.98"
+            "Test2::Suite" : "0"
          }
       }
    },
    "release_status" : "unstable",
+   "resources" : {
+      "bugtracker" : {
+         "web" : "https://github.com/ybrliiu/p5-Sub-TypedAnon/issues"
+      },
+      "homepage" : "https://github.com/ybrliiu/p5-Sub-TypedAnon",
+      "repository" : {
+         "type" : "git",
+         "url" : "git://github.com/ybrliiu/p5-Sub-TypedAnon.git",
+         "web" : "https://github.com/ybrliiu/p5-Sub-TypedAnon"
+      }
+   },
    "version" : "0.01",
    "x_serialization_backend" : "JSON::PP version 4.02",
    "x_static_install" : 1
