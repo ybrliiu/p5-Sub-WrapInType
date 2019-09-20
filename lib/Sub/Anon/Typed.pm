@@ -1,4 +1,4 @@
-package Sub::TypedAnon;
+package Sub::Anon::Typed;
 use 5.010001;
 use strict;
 use warnings;

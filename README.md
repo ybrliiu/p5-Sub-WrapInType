@@ -1,12 +1,12 @@
 [![Build Status](https://circleci.com/gh/ybrliiu/p5-Sub-TypedAnon.svg)](https://circleci.com/gh/ybrliiu/p5-Sub-TypedAnon) [![Coverage Status](http://codecov.io/github/ybrliiu/p5-Sub-TypedAnon/coverage.svg?branch=master)](https://codecov.io/github/ybrliiu/p5-Sub-TypedAnon?branch=master)
 # NAME
 
-Sub::TypedAnon - Create simple typed anonymous subroutine easily.
+Sub::Anon::Typed - Create simple typed anonymous subroutine easily.
 
 # SYNOPSIS
 
     use Test2::V0;
-    use Sub::TypedAnon;
+    use Sub::Anon::Typed;
 
     my $sum = anon [ Int, Int ], Int, sub {
       my ($x, $y) = @_;
@@ -17,7 +17,7 @@ Sub::TypedAnon - Create simple typed anonymous subroutine easily.
 
 # DESCRIPTION
 
-Sub::TypedAnon is create simple typed anonymous subroutine easily.
+Sub::Anon::Typed is create simple typed anonymous subroutine easily.
 
 # LICENSE
 
