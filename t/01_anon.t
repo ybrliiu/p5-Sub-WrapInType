@@ -92,10 +92,9 @@ subtest 'Confirm get_info' => sub {
     },
   };
   my $typed_code = anon @$orig_info{qw( params isa code )};
-  my $info = get_info($typed_code);
-  is $info->{isa} . '', $orig_info->{isa} . '';
-  is $info->{params} . '', $orig_info->{params} . '';
-  is $info->{code}, $orig_info->{code};
+  is $typed_code->isa . '', $orig_info->{isa} . '';
+  is $typed_code->params . '', $orig_info->{params} . '';
+  is $typed_code->code, $orig_info->{code};
 
 };
 

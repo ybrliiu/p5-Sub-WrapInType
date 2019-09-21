@@ -7,12 +7,19 @@ use Hash::Util ();
 use Scalar::Util ();
 use Type::Params ();
 use Exporter qw( import );
+use Class::InsideOut qw( register readonly id );
 
 our $VERSION   = '0.01';
 our @EXPORT    = qw( anon );
 our @EXPORT_OK = qw( get_info );
 
-sub anon {
+readonly params => my %params;
+readonly isa    => my %isa;
+readonly code   => my %code;
+
+sub new {
+  my $class = shift;
+
   my ($params_types, $return_type, $code) = do {
     if (@_ == 3) {
       @_;
@@ -55,28 +62,21 @@ sub anon {
     $return_value;
   };
 
-  _store_info($typed_code, $params_types, $return_type, $code);
+  my $self = bless $typed_code, $class;
+  register($self);
 
-  $typed_code;
+  {
+    my $addr = id $self;
+    $params{$addr} = $params_types;
+    $isa{$addr}    = $return_type;
+    $code{$addr}   = $code;
+  }
+
+  $self;
 }
 
-{
-  my %Info;
-
-  sub _store_info {
-    my ($typed_code, $params_types, $return_type, $code) = @_;
-    $Info{ $typed_code . '' } = Hash::Util::lock_hashref({
-      isa    => $return_type,
-      params => $params_types,
-      code   => $code,
-    });
-  }
-
-  sub get_info {
-    my $typed_code = shift;
-    Carp::croak 'Wrong arguments.' unless defined $typed_code && ref $typed_code eq 'CODE';
-    $Info{ $typed_code . '' };
-  }
+sub anon {
+  __PACKAGE__->new(@_);
 }
 
 1;
