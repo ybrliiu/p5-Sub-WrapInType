@@ -13,9 +13,9 @@ our $VERSION   = '0.01';
 our @EXPORT    = qw( anon );
 our @EXPORT_OK = qw( get_info );
 
-readonly params => my %params;
-readonly isa    => my %isa;
-readonly code   => my %code;
+readonly params  => my %params;
+readonly returns => my %returns;
+readonly code    => my %code;
 
 sub new {
   my $class = shift;
@@ -68,7 +68,7 @@ sub new {
   {
     my $addr = id $self;
     $params{$addr} = $params_types;
-    $isa{$addr}    = $return_type;
+    $returns{$addr}    = $return_type;
     $code{$addr}   = $code;
   }
 
