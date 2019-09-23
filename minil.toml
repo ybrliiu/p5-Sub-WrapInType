@@ -1,4 +1,4 @@
-name = "Sub-TypedAnon"
+name = "Sub-Anon-Typed"
 badges = ["circleci", "codecov"]
 module_maker="ModuleBuildTiny"
 static_install = "auto"

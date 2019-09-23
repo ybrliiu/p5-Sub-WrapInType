@@ -87,12 +87,12 @@ __END__
 
 =head1 NAME
 
-Sub::TypedAnon - Create simple typed anonymous subroutine easily.
+Sub::Anon::Typed - Create simple typed anonymous subroutine easily.
 
 =head1 SYNOPSIS
 
     use Test2::V0;
-    use Sub::TypedAnon;
+    use Sub::Anon::Typed;
 
     my $sum = anon [ Int, Int ], Int, sub {
       my ($x, $y) = @_;
@@ -103,7 +103,7 @@ Sub::TypedAnon - Create simple typed anonymous subroutine easily.
 
 =head1 DESCRIPTION
 
-Sub::TypedAnon is create simple typed anonymous subroutine easily.
+Sub::Anon::Typed is create simple typed anonymous subroutine easily.
 
 =head1 LICENSE
 

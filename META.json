@@ -12,7 +12,7 @@
       "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
       "version" : 2
    },
-   "name" : "Sub-TypedAnon",
+   "name" : "Sub-Anon-Typed",
    "no_index" : {
       "directory" : [
          "t",
@@ -59,13 +59,13 @@
    "release_status" : "unstable",
    "resources" : {
       "bugtracker" : {
-         "web" : "https://github.com/ybrliiu/p5-Sub-TypedAnon/issues"
+         "web" : "https://github.com/ybrliiu/p5-Sub-Anon-Typed/issues"
       },
-      "homepage" : "https://github.com/ybrliiu/p5-Sub-TypedAnon",
+      "homepage" : "https://github.com/ybrliiu/p5-Sub-Anon-Typed",
       "repository" : {
          "type" : "git",
-         "url" : "git://github.com/ybrliiu/p5-Sub-TypedAnon.git",
-         "web" : "https://github.com/ybrliiu/p5-Sub-TypedAnon"
+         "url" : "git://github.com/ybrliiu/p5-Sub-Anon-Typed.git",
+         "web" : "https://github.com/ybrliiu/p5-Sub-Anon-Typed"
       }
    },
    "version" : "0.01",
