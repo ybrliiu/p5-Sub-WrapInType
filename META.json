@@ -43,6 +43,7 @@
       "runtime" : {
          "requires" : {
             "Carp" : "0",
+            "Class::InsideOut" : "0",
             "Exporter" : "0",
             "Hash::Util" : "0",
             "Scalar::Util" : "0",
