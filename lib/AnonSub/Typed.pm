@@ -1,4 +1,4 @@
-package Sub::Anon::Typed;
+package AnonSub::Typed;
 use 5.010001;
 use strict;
 use warnings;
@@ -87,12 +87,12 @@ __END__
 
 =head1 NAME
 
-Sub::Anon::Typed - Create simple typed anonymous subroutine easily.
+AnonSub::Typed - Create simple typed anonymous subroutine easily.
 
 =head1 SYNOPSIS
 
     use Test2::V0;
-    use Sub::Anon::Typed;
+    use AnonSub::Typed;
 
     my $sum = anon [ Int, Int ], Int, sub {
       my ($x, $y) = @_;
@@ -103,7 +103,7 @@ Sub::Anon::Typed - Create simple typed anonymous subroutine easily.
 
 =head1 DESCRIPTION
 
-Sub::Anon::Typed is create simple typed anonymous subroutine easily.
+AnonSub::Typed is create simple typed anonymous subroutine easily.
 
 =head1 LICENSE
 

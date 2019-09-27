@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use Test2::V0;
 use Types::Standard qw( Int );
-use Sub::Anon::Typed qw( anon get_info );
+use AnonSub::Typed qw( anon get_info );
 
 subtest 'Create typed anonymous subroutine' => sub {
   

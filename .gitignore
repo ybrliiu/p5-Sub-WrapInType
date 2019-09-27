@@ -28,6 +28,6 @@ cover_db/
 
 MYMETA.*
 
-/Sub-Anon-Typed-*
+/AnonSub-Typed-*
 
 /.vscode
