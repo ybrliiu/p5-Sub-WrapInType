@@ -1,4 +1,4 @@
-[![Build Status](https://circleci.com/gh/ybrliiu/p5-Sub-Anon-Typed.svg)](https://circleci.com/gh/ybrliiu/p5-Sub-Anon-Typed) [![Coverage Status](http://codecov.io/github/ybrliiu/p5-Sub-Anon-Typed/coverage.svg?branch=master)](https://codecov.io/github/ybrliiu/p5-Sub-Anon-Typed?branch=master)
+[![Build Status](https://circleci.com/gh/ybrliiu/p5-AnonSub-Typed.svg)](https://circleci.com/gh/ybrliiu/p5-AnonSub-Typed) [![Coverage Status](http://codecov.io/github/ybrliiu/p5-AnonSub-Typed/coverage.svg?branch=master)](https://codecov.io/github/ybrliiu/p5-AnonSub-Typed?branch=master)
 # NAME
 
 AnonSub::Typed - Create simple typed anonymous subroutine easily.
