@@ -9,7 +9,7 @@ use Type::Params ();
 use Exporter qw( import );
 use Class::InsideOut qw( register readonly id );
 
-our $VERSION = '0.01';
+our $VERSION = '0.01_01';
 our @EXPORT  = qw( wrap_sub );
 
 readonly params  => my %params;
@@ -90,22 +90,22 @@ Sub::WrapInType - Wrap the subroutine to validate the argument type and return t
 
 =head1 SYNOPSIS
 
-    use Test2::V0;
-    use Types::Standard -types;
-    use Sub::WrapInType;
+  use Test2::V0;
+  use Types::Standard -types;
+  use Sub::WrapInType;
 
-    my $sum = wrap_sub [ Int, Int ], Int, sub {
-      my ($x, $y) = @_;
-      $x + $y;
-    };
-    $sum->('foo'); # Error!
-    $sum->(2, 5); # 7
+  my $sum = wrap_sub [ Int, Int ], Int, sub {
+    my ($x, $y) = @_;
+    $x + $y;
+  };
+  $sum->('foo'); # Error!
+  $sum->(2, 5); # 7
 
-    my $subtract = wrap_sub [ Int, Int ], Int, sub {
-      my ($x, $y) = @_;
-      "$x - $y";
-    };
-    $subtract->(5, 2); # Returns string '5 - 2', error!
+  my $subtract = wrap_sub [ Int, Int ], Int, sub {
+    my ($x, $y) = @_;
+    "$x - $y";
+  };
+  $subtract->(5, 2); # Returns string '5 - 2', error!
 
 =head1 DESCRIPTION
 
@@ -128,9 +128,9 @@ This is a wrapper for the constructor.
 
 Constract a new Sub::WrapInType object.
 
-    use Types::Standard -types;
-    use Sub::WrapInType;
-    my $wraped_sub = Sub::WrapInType->new([Int, Int] => Int, sub { $_[0] + $_[1] });
+  use Types::Standard -types;
+  use Sub::WrapInType;
+  my $wraped_sub = Sub::WrapInType->new([Int, Int] => Int, sub { $_[0] + $_[1] });
 
 =head1 LICENSE
 
