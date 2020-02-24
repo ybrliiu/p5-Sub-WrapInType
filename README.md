@@ -1,14 +1,14 @@
-[![Build Status](https://circleci.com/gh/ybrliiu/p5-Sub-Anon-Typed.svg)](https://circleci.com/gh/ybrliiu/p5-Sub-Anon-Typed) [![Coverage Status](http://codecov.io/github/ybrliiu/p5-Sub-Anon-Typed/coverage.svg?branch=master)](https://codecov.io/github/ybrliiu/p5-Sub-Anon-Typed?branch=master)
+[![Build Status](https://circleci.com/gh/ybrliiu/p5-Sub-WrapInType.svg)](https://circleci.com/gh/ybrliiu/p5-Sub-WrapInType) [![Coverage Status](http://codecov.io/github/ybrliiu/p5-Sub-WrapInType/coverage.svg?branch=master)](https://codecov.io/github/ybrliiu/p5-Sub-WrapInType?branch=master)
 # NAME
 
-Sub::Anon::Typed - Create simple typed anonymous subroutine easily.
+Sub::WrapInType - Create simple typed anonymous subroutine easily.
 
 # SYNOPSIS
 
     use Test2::V0;
-    use Sub::Anon::Typed;
+    use Sub::WrapInType;
 
-    my $sum = anon [ Int, Int ], Int, sub {
+    my $sum = wrap_sub [ Int, Int ], Int, sub {
       my ($x, $y) = @_;
       $x + $y;
     };
@@ -17,7 +17,7 @@ Sub::Anon::Typed - Create simple typed anonymous subroutine easily.
 
 # DESCRIPTION
 
-Sub::Anon::Typed is create simple typed anonymous subroutine easily.
+Sub::WrapInType is create simple typed anonymous subroutine easily.
 
 # LICENSE
 

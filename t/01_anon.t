@@ -3,26 +3,26 @@ use strict;
 use warnings;
 use Test2::V0;
 use Types::Standard qw( Int );
-use Sub::Anon::Typed qw( anon get_info );
+use Sub::WrapInType qw( wrap_sub get_info );
 
-subtest 'Create typed anonymous subroutine' => sub {
+subtest 'Create typed wrap_subymous subroutine' => sub {
   
   ok lives {
-    anon [ Int, Int ], Int, sub {
+    wrap_sub [ Int, Int ], Int, sub {
       my ($x, $y) = @_;
       $x + $y;
     };
   };
 
   ok lives {
-    anon +{ x => Int, y => Int }, Int, sub {
+    wrap_sub +{ x => Int, y => Int }, Int, sub {
       my ($x, $y) = @{ shift() }{qw( x y )};
       $x + $y;
     };
   };
   
   ok lives {
-    anon(
+    wrap_sub(
       params => [ Int, Int ],
       isa    => Int,
       code   => sub {
@@ -33,7 +33,7 @@ subtest 'Create typed anonymous subroutine' => sub {
   };
 
   ok lives {
-    anon(
+    wrap_sub(
       params => +{
         x => Int,
         y => Int,
@@ -46,14 +46,14 @@ subtest 'Create typed anonymous subroutine' => sub {
     );
   };
 
-  ok dies { anon }, 'Too few arguments.';
+  ok dies { wrap_sub }, 'Too few arguments.';
 
-  ok dies { anon \(my $anon), Int, sub {} };
+  ok dies { wrap_sub \(my $wrap_sub), Int, sub {} };
 
-  ok dies { anon [ 'Int', 'Int' ], 'Int', sub {} }, 'Arguments is not typeconstraint object.';
+  ok dies { wrap_sub [ 'Int', 'Int' ], 'Int', sub {} }, 'Arguments is not typeconstraint object.';
   
   ok dies {
-    anon(
+    wrap_sub(
       params => [ Int, Int ],
       return => Int,
       code   => sub {
@@ -65,15 +65,15 @@ subtest 'Create typed anonymous subroutine' => sub {
   
 };
 
-subtest 'Run typed anonymous subroutine' => sub {
+subtest 'Run typed wrap_subymous subroutine' => sub {
 
-  my $sum = anon [ Int, Int ], Int, sub {
+  my $sum = wrap_sub [ Int, Int ], Int, sub {
     my ($x, $y) = @_;
     $x + $y;
   };
   is $sum->(2, 5), 7;
 
-  my $sub = anon +{ x => Int, y => Int }, Int, sub {
+  my $sub = wrap_sub +{ x => Int, y => Int }, Int, sub {
     my ($x, $y) = @{ shift() }{qw( x y )};
     $x - $y;
   };
@@ -91,7 +91,7 @@ subtest 'Confirm get_info' => sub {
       $x + $y;
     },
   };
-  my $typed_code = anon @$orig_info{qw( params isa code )};
+  my $typed_code = wrap_sub @$orig_info{qw( params isa code )};
   is $typed_code->returns . '', $orig_info->{isa} . '';
   is $typed_code->params . '', $orig_info->{params} . '';
   is $typed_code->code, $orig_info->{code};

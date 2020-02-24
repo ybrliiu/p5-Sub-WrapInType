@@ -12,7 +12,7 @@
       "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
       "version" : 2
    },
-   "name" : "Sub-Anon-Typed",
+   "name" : "Sub-WrapInType",
    "no_index" : {
       "directory" : [
          "t",
@@ -60,13 +60,13 @@
    "release_status" : "unstable",
    "resources" : {
       "bugtracker" : {
-         "web" : "https://github.com/ybrliiu/p5-Sub-Anon-Typed/issues"
+         "web" : "https://github.com/ybrliiu/p5-Sub-WrapInType/issues"
       },
-      "homepage" : "https://github.com/ybrliiu/p5-Sub-Anon-Typed",
+      "homepage" : "https://github.com/ybrliiu/p5-Sub-WrapInType",
       "repository" : {
          "type" : "git",
-         "url" : "git://github.com/ybrliiu/p5-Sub-Anon-Typed.git",
-         "web" : "https://github.com/ybrliiu/p5-Sub-Anon-Typed"
+         "url" : "git://github.com/ybrliiu/p5-Sub-WrapInType.git",
+         "web" : "https://github.com/ybrliiu/p5-Sub-WrapInType"
       }
    },
    "version" : "0.01",

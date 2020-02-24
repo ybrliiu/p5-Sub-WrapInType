@@ -1,4 +1,4 @@
-package Sub::Anon::Typed;
+package Sub::WrapInType;
 use 5.010001;
 use strict;
 use warnings;
@@ -10,7 +10,7 @@ use Exporter qw( import );
 use Class::InsideOut qw( register readonly id );
 
 our $VERSION   = '0.01';
-our @EXPORT    = qw( anon );
+our @EXPORT    = qw( wrap_sub );
 our @EXPORT_OK = qw( get_info );
 
 readonly params  => my %params;
@@ -75,7 +75,7 @@ sub new {
   $self;
 }
 
-sub anon {
+sub wrap_sub {
   __PACKAGE__->new(@_);
 }
 
@@ -87,14 +87,14 @@ __END__
 
 =head1 NAME
 
-Sub::Anon::Typed - Create simple typed anonymous subroutine easily.
+Sub::WrapInType - Create simple typed wrap_subymous subroutine easily.
 
 =head1 SYNOPSIS
 
     use Test2::V0;
-    use Sub::Anon::Typed;
+    use Sub::WrapInType;
 
-    my $sum = anon [ Int, Int ], Int, sub {
+    my $sum = wrap_sub [ Int, Int ], Int, sub {
       my ($x, $y) = @_;
       $x + $y;
     };
@@ -103,7 +103,7 @@ Sub::Anon::Typed - Create simple typed anonymous subroutine easily.
 
 =head1 DESCRIPTION
 
-Sub::Anon::Typed is create simple typed anonymous subroutine easily.
+Sub::WrapInType is create simple typed wrap_subymous subroutine easily.
 
 =head1 LICENSE
 
