@@ -1,4 +1,4 @@
-[![Build Status](https://circleci.com/gh/ybrliiu/p5-Sub-Anon-Typed.svg)](https://circleci.com/gh/ybrliiu/p5-Sub-Anon-Typed) [![Coverage Status](http://codecov.io/github/ybrliiu/p5-Sub-Anon-Typed/coverage.svg?branch=master)](https://codecov.io/github/ybrliiu/p5-Sub-Anon-Typed?branch=master)
+[![Build Status](https://circleci.com/gh/ybrliiu/p5-Sub-WrapInType.svg)](https://circleci.com/gh/ybrliiu/p5-Sub-WrapInType) [![Coverage Status](http://codecov.io/github/ybrliiu/p5-Sub-WrapInType/coverage.svg?branch=master)](https://codecov.io/github/ybrliiu/p5-Sub-WrapInType?branch=master)
 # NAME
 
 Sub::WrapInType - Wrap the subroutine to validate the argument type and return type.

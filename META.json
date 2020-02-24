@@ -60,13 +60,13 @@
    "release_status" : "unstable",
    "resources" : {
       "bugtracker" : {
-         "web" : "https://github.com/ybrliiu/p5-Sub-Anon-Typed/issues"
+         "web" : "https://github.com/ybrliiu/p5-Sub-WrapInType/issues"
       },
-      "homepage" : "https://github.com/ybrliiu/p5-Sub-Anon-Typed",
+      "homepage" : "https://github.com/ybrliiu/p5-Sub-WrapInType",
       "repository" : {
          "type" : "git",
-         "url" : "git://github.com/ybrliiu/p5-Sub-Anon-Typed.git",
-         "web" : "https://github.com/ybrliiu/p5-Sub-Anon-Typed"
+         "url" : "git://github.com/ybrliiu/p5-Sub-WrapInType.git",
+         "web" : "https://github.com/ybrliiu/p5-Sub-WrapInType"
       }
    },
    "version" : "0.01_01",
