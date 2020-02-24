@@ -9,7 +9,7 @@ use Type::Params ();
 use Exporter qw( import );
 use Class::InsideOut qw( register readonly id );
 
-our $VERSION = '0.01_01';
+our $VERSION = '0.01_02';
 our @EXPORT  = qw( wrap_sub );
 
 readonly params  => my %params;

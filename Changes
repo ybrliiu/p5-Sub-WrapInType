@@ -2,6 +2,10 @@ Revision history for Perl extension Sub-WrapInType
 
 {{$NEXT}}
 
+0.01_02 2020-02-24T20:11:41Z
+
+    - fix module name
+
 0.01_01 2020-02-24T19:50:34Z
 
     - original version
