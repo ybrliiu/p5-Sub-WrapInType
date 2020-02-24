@@ -1,7 +1,7 @@
 {
-   "abstract" : "Create simple typed anonymous subroutine easily.",
+   "abstract" : "Wrap the subroutine to validate the argument type and return type.",
    "author" : [
-      "ybrliiu <raian@reeshome.org>"
+      "mp0liiu <mpoliiu@cpan.org>"
    ],
    "dynamic_config" : 0,
    "generated_by" : "Minilla/v3.1.4, CPAN::Meta::Converter version 2.150010",
@@ -60,16 +60,19 @@
    "release_status" : "unstable",
    "resources" : {
       "bugtracker" : {
-         "web" : "https://github.com/ybrliiu/p5-Sub-WrapInType/issues"
+         "web" : "https://github.com/ybrliiu/p5-Sub-Anon-Typed/issues"
       },
-      "homepage" : "https://github.com/ybrliiu/p5-Sub-WrapInType",
+      "homepage" : "https://github.com/ybrliiu/p5-Sub-Anon-Typed",
       "repository" : {
          "type" : "git",
-         "url" : "git://github.com/ybrliiu/p5-Sub-WrapInType.git",
-         "web" : "https://github.com/ybrliiu/p5-Sub-WrapInType"
+         "url" : "git://github.com/ybrliiu/p5-Sub-Anon-Typed.git",
+         "web" : "https://github.com/ybrliiu/p5-Sub-Anon-Typed"
       }
    },
    "version" : "0.01",
+   "x_contributors" : [
+      "mp0liiu <raian@reeshome.org>"
+   ],
    "x_serialization_backend" : "JSON::PP version 4.02",
    "x_static_install" : 1
 }
