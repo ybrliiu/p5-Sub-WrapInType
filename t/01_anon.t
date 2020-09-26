@@ -5,7 +5,7 @@ use Test2::V0;
 use Types::Standard qw( Int );
 use Sub::WrapInType qw( wrap_sub );
 
-subtest 'Create typed wrap_subymous subroutine' => sub {
+subtest 'Create typed anonymous subroutine' => sub {
   
   ok lives {
     wrap_sub [ Int, Int ] => Int, sub {
@@ -65,7 +65,7 @@ subtest 'Create typed wrap_subymous subroutine' => sub {
   
 };
 
-subtest 'Run typed wrap_subymous subroutine' => sub {
+subtest 'Run typed anonymous subroutine' => sub {
 
   my $sum = wrap_sub [ Int, Int ] => Int, sub {
     my ($x, $y) = @_;

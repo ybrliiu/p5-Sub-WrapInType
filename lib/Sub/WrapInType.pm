@@ -2,63 +2,63 @@ package Sub::WrapInType;
 use 5.010001;
 use strict;
 use warnings;
+use parent 'Exporter';
+use Class::InsideOut qw( register readonly id );
 use Carp ();
 use Hash::Util ();
 use Scalar::Util ();
-use Type::Params ();
-use Exporter qw( import );
-use Class::InsideOut qw( register readonly id );
+use Types::Standard -types;
+use Type::Params qw( multisig compile compile_named Invocant );
+use namespace::autoclean;
 
-our $VERSION = '0.01_02';
+our $VERSION = '0.01';
 our @EXPORT  = qw( wrap_sub );
 
 readonly params  => my %params;
 readonly returns => my %returns;
 readonly code    => my %code;
 
+my $TypeConstraint = HasMethods[qw( assert_valid )];
+my $ParamsTypes    = ArrayRef[$TypeConstraint] | Map[Str, $TypeConstraint];
+my $ReturnTypes    = $TypeConstraint | ArrayRef[$TypeConstraint];
+
 sub new {
   my $class = shift;
-
-  my ($params_types, $return_type, $code) = do {
-    if (@_ == 3) {
-      @_;
-    }
-    elsif (@_ == 6) {
-      my %args = @_;
-      my @valid_args = grep { defined } map { $args{$_} } qw( params isa code );
-      @valid_args == 3 ? @valid_args : Carp::croak 'Wrong arguments.';
-    }
-    else {
-      Carp::croak 'Wrong arguments.';
-    }
+  state $check = multisig(
+    [ $ParamsTypes, $ReturnTypes, CodeRef ],
+    compile_named(
+      params => $ParamsTypes,
+      isa    => $ReturnTypes,
+      code   => CodeRef,
+    ),
+  );
+  my ($params_types, $return_types, $code) = do {
+    my @args = $check->(@_);
+    ${^TYPE_PARAMS_MULTISIG} == 0 ? @args : @{ $args[0] }{qw( params isa code )};
   };
 
-  {
-    my @types = do {
-      if (ref $params_types eq 'ARRAY') {
-        @$params_types;
-      }
-      elsif (ref $params_types eq 'HASH') {
-        values %$params_types;
-      }
-      else {
-        Carp::croak 'Wrong arguments.'
-      }
-    };
-    for my $type (@types, $return_type) {
-      Carp::croak 'Wrong arguments.'
-        unless Scalar::Util::blessed($type) && $type->can('check') && $type->can('get_message');
+  my $params_types_checker = ref $params_types eq 'ARRAY'
+    ? compile(@$params_types)
+    : compile_named(%$params_types);
+  my $return_types_checker = ref $return_types eq 'ARRAY'
+    ? compile(@$return_types)
+    : compile($return_types);
+
+  my $typed_code = do {
+    if (ref $return_types eq 'ARRAY') {
+      sub {
+        my @return_values = $code->( $params_types_checker->(@_) );
+        $return_types_checker->(@return_values);
+        @return_values;
+      };
     }
-  }
-
-  my $checker = ref $params_types eq 'ARRAY'
-    ? Type::Params::compile(@$params_types)
-    : Type::Params::compile_named(%$params_types);
-
-  my $typed_code = sub {
-    my $return_value = $code->( $checker->(@_) );
-    die $return_type->get_message($return_value) unless $return_type->check($return_value);
-    $return_value;
+    else {
+      sub {
+        my $return_value = $code->( $params_types_checker->(@_) );
+        $return_types_checker->($return_value);
+        $return_value;
+      };
+    }
   };
 
   my $self = bless $typed_code, $class;
@@ -67,7 +67,7 @@ sub new {
   {
     my $addr = id $self;
     $params{$addr}  = $params_types;
-    $returns{$addr} = $return_type;
+    $returns{$addr} = $return_types;
     $code{$addr}    = $code;
   }
 
@@ -90,7 +90,6 @@ Sub::WrapInType - Wrap the subroutine to validate the argument type and return t
 
 =head1 SYNOPSIS
 
-  use Test2::V0;
   use Types::Standard -types;
   use Sub::WrapInType;
 

@@ -5,6 +5,7 @@ requires 'Type::Tiny';
 requires 'Hash::Util';
 requires 'Scalar::Util';
 requires 'Class::InsideOut';
+requires 'namespace::autoclean';
 
 on 'test' => sub {
   requires 'Test2::Suite';
