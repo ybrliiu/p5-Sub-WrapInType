@@ -48,6 +48,7 @@
             "Hash::Util" : "0",
             "Scalar::Util" : "0",
             "Type::Tiny" : "0",
+            "namespace::autoclean" : "0",
             "perl" : "5.010001"
          }
       },
@@ -69,7 +70,7 @@
          "web" : "https://github.com/ybrliiu/p5-Sub-WrapInType"
       }
    },
-   "version" : "0.01_02",
+   "version" : "0.02",
    "x_contributors" : [
       "ybrliiu <raian@reeshome.org>"
    ],

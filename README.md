@@ -5,7 +5,6 @@ Sub::WrapInType - Wrap the subroutine to validate the argument type and return t
 
 # SYNOPSIS
 
-    use Test2::V0;
     use Types::Standard -types;
     use Sub::WrapInType;
 
@@ -13,8 +12,8 @@ Sub::WrapInType - Wrap the subroutine to validate the argument type and return t
       my ($x, $y) = @_;
       $x + $y;
     };
-    $sum->('foo'); # Error!
-    $sum->(2, 5); # 7
+    $sum->(2, 5);  # Returns 7
+    $sum->('foo'); # Throws an exception
 
     my $subtract = wrap_sub [ Int, Int ], Int, sub {
       my ($x, $y) = @_;
@@ -33,7 +32,45 @@ Sub::WrapInType is wrap the subroutine to validate the argument type and return 
 If you pass type constraints of parameters, a return type constraint, and a subroutine to this function,
 Returns the subroutine wrapped in the process of checking the arguments given in the parameter's type constraints and checking the return value with the return value's type constraint.
 
+    my $sum = wrap_sub [Int, Int], Int, sub {
+      my ($x, $y) = @_;
+      $x + $y;
+    };
+    $sum->(2, 5);  # Returns 7
+    $sum->('foo'); # Throws an exception (Can not pass string)
+
+    my $wrong_return_value = wrap_sub [Int, Int], Int, sub {
+      my ($x, $y) = @_;
+      "$x + $y";
+    };
+    $wrong_return_value->(2, 5); # Throws an exception (The return value isn't an Integer)
+    $sum->('foo');               # Throws an exception (Can not pass string)
+
 The type constraint expects to be passed an object of Type::Tiny.
+
+When the subroutine returns multiple return values, it is possible to specify multiple return type constraints.
+
+    my $multi_return_values = wrap_sub [Int, Int], [Int, Int], sub {
+      my ($x, $y) = @_;
+      ($x, $y);
+    };
+    my ($x, $y) = $multi_return_values->(0, 1);
+
+You can pass named parameters.
+
+    my $sub = wrap_sub(
+      params => [Int, Int],
+      return => Int,
+      code   => sub {
+        my ($x, $y) = @_;
+        $x + $y;
+      },
+    );
+
+If subroutine returns array or hash, Sub::WrapInType will not be able to check the type as you intended.
+You should rewrite the subroutine to returns array reference or hash reference.
+
+Sub::WrapInType does not support wantarray.
 
 This is a wrapper for the constructor.
 
