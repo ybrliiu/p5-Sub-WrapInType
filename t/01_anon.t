@@ -20,6 +20,13 @@ subtest 'Create typed anonymous subroutine' => sub {
       $x + $y;
     };
   };
+
+  ok lives {
+    wrap_sub [ Int, Int ] => [ Int, Int ], sub {
+      my ($x, $y) = @_;
+      $x, $y;
+    };
+  };
   
   ok lives {
     wrap_sub(
@@ -78,6 +85,12 @@ subtest 'Run typed anonymous subroutine' => sub {
     $x - $y;
   };
   is $sub->(x => 10, y => 5), 5;
+
+  my $multi_return_values = wrap_sub [ Int, Int ] => [ Int, Int ], sub {
+    my ($x, $y) = @_;
+    $x, $y;
+  };
+  is [ $multi_return_values->(2, 4) ], [2, 4], 'Multiple return values.';
 
 };
 
