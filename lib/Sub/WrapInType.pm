@@ -185,5 +185,9 @@ it under the same terms as Perl itself.
 
 mp0liiu E<lt>mpoliiu@cpan.orgE<gt>
 
+=head1 SEE ALSE
+
+L<Type::Params> exports the function wrap_sub. It check only parameters type.
+
 =cut
 
