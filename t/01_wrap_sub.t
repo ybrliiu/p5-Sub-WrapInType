@@ -6,6 +6,13 @@ use Types::Standard qw( Int );
 use Sub::WrapInType qw( wrap_sub );
 
 subtest 'Create typed anonymous subroutine' => sub {
+
+  ok lives {
+    wrap_sub Int ,=> Int, sub {
+      my $x = shift;
+      $x ** 2;
+    };
+  };
   
   ok lives {
     wrap_sub [ Int, Int ] => Int, sub {
@@ -73,6 +80,12 @@ subtest 'Create typed anonymous subroutine' => sub {
 };
 
 subtest 'Run typed anonymous subroutine' => sub {
+
+  my $pow = wrap_sub Int ,=> Int, sub {
+    my $x = shift;
+    $x ** 2;
+  };
+  is $pow->(2), 4;
 
   my $sum = wrap_sub [ Int, Int ] => Int, sub {
     my ($x, $y) = @_;

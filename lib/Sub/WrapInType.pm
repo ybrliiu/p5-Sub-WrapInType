@@ -19,7 +19,7 @@ readonly returns => my %returns;
 readonly code    => my %code;
 
 my $TypeConstraint = HasMethods[qw( assert_valid )];
-my $ParamsTypes    = ArrayRef[$TypeConstraint] | Map[Str, $TypeConstraint];
+my $ParamsTypes    = $TypeConstraint | ArrayRef[$TypeConstraint] | Map[Str, $TypeConstraint];
 my $ReturnTypes    = $TypeConstraint | ArrayRef[$TypeConstraint];
 
 sub new {
@@ -41,12 +41,12 @@ EOS
     ${^TYPE_PARAMS_MULTISIG} == 0 ? @args : @{ $args[0] }{qw( params isa code )};
   };
 
-  my $params_types_checker = ref $params_types eq 'ARRAY'
-    ? compile(@$params_types)
-    : compile_named(%$params_types);
-  my $return_types_checker = ref $return_types eq 'ARRAY'
-    ? compile(@$return_types)
-    : compile($return_types);
+  my $params_types_checker =
+      ref $params_types eq 'ARRAY' ? compile(@$params_types)
+    : ref $params_types eq 'HASH'  ? compile_named(%$params_types)
+    :                                compile($params_types);
+  my $return_types_checker =
+    ref $return_types eq 'ARRAY' ? compile(@$return_types) : compile($return_types);
 
   my $typed_code = do {
     if (ref $return_types eq 'ARRAY') {
