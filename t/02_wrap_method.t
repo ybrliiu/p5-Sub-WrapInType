@@ -17,12 +17,14 @@ sub add_multi {
 subtest 'single return type' => sub {
     my $typed_code = wrap_method [Int, Int] => Int, \&add;
     is $typed_code->(__PACKAGE__, 2, 3), 5;
+    ok $typed_code->is_method;
 };
 
 subtest 'multi return types' => sub {
     my $typed_code = wrap_method [Int, Int] => [Int, Int], \&add_multi;
     my @returns = $typed_code->(__PACKAGE__, 2, 3);
     is \@returns, [5, 6];
+    ok $typed_code->is_method;
 };
 
 done_testing;

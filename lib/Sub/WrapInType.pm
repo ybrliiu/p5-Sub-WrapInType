@@ -14,9 +14,10 @@ use namespace::autoclean;
 our $VERSION = '0.04';
 our @EXPORT  = qw( wrap_sub wrap_method );
 
-readonly params  => my %params;
-readonly returns => my %returns;
-readonly code    => my %code;
+readonly params    => my %params;
+readonly returns   => my %returns;
+readonly code      => my %code;
+readonly is_method => my %is_method;
 
 my $TypeConstraint = HasMethods[qw( assert_valid )];
 my $ParamsTypes    = $TypeConstraint | ArrayRef[$TypeConstraint] | Map[Str, $TypeConstraint];
@@ -89,9 +90,10 @@ EOS
 
   {
     my $addr = id $self;
-    $params{$addr}  = $params_types;
-    $returns{$addr} = $return_types;
-    $code{$addr}    = $code;
+    $params{$addr}    = $params_types;
+    $returns{$addr}   = $return_types;
+    $code{$addr}      = $code;
+    $is_method{$addr} = !!$opts->{skip_invocant};
   }
 
   $self;

@@ -122,6 +122,7 @@ subtest 'Confirm get_info' => sub {
   is $typed_code->returns . '', $orig_info->{isa} . '';
   is $typed_code->params . '', $orig_info->{params} . '';
   is $typed_code->code, $orig_info->{code};
+  ok !$typed_code->is_method;
 
 };
 
