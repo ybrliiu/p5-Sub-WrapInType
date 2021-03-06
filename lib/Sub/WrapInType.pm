@@ -12,7 +12,7 @@ use Type::Params qw( multisig compile compile_named Invocant );
 use namespace::autoclean;
 
 our $VERSION = '0.04';
-our @EXPORT  = qw( wrap_sub );
+our @EXPORT  = qw( wrap_sub wrap_method );
 
 readonly params  => my %params;
 readonly returns => my %returns;
@@ -24,6 +24,7 @@ my $ReturnTypes    = $TypeConstraint | ArrayRef[$TypeConstraint];
 
 sub new {
   my $class = shift;
+  my $opts = shift;
   state $check = multisig(
     +{ message => << 'EOS' },
 USAGE: wrap_sub(\@parameter_types, $return_type, $subroutine)
@@ -50,18 +51,36 @@ EOS
 
   my $typed_code = do {
     if (ref $return_types eq 'ARRAY') {
-      sub {
-        my @return_values = $code->( $params_types_checker->(@_) );
-        $return_types_checker->(@return_values);
-        @return_values;
-      };
+      if ($opts->{skip_invocant}) {
+        sub {
+          my @return_values = $code->( shift, $params_types_checker->(@_) );
+          $return_types_checker->(@return_values);
+          @return_values;
+        };
+      }
+      else {
+          sub {
+            my @return_values = $code->( $params_types_checker->(@_) );
+            $return_types_checker->(@return_values);
+            @return_values;
+          };
+      }
     }
     else {
-      sub {
-        my $return_value = $code->( $params_types_checker->(@_) );
-        $return_types_checker->($return_value);
-        $return_value;
-      };
+      if ($opts->{skip_invocant}) {
+        sub {
+          my $return_value = $code->( shift, $params_types_checker->(@_) );
+          $return_types_checker->($return_value);
+          $return_value;
+        };
+      }
+      else {
+        sub {
+          my $return_value = $code->( $params_types_checker->(@_) );
+          $return_types_checker->($return_value);
+          $return_value;
+        };
+      }
     }
   };
 
@@ -79,6 +98,19 @@ EOS
 }
 
 sub wrap_sub {
+  my $opts = {
+      skip_invocant => 0,
+  };
+  unshift @_, $opts;
+  unshift @_, __PACKAGE__;
+  goto &new;
+}
+
+sub wrap_method {
+  my $opts = {
+      skip_invocant => 1,
+  };
+  unshift @_, $opts;
   unshift @_, __PACKAGE__;
   goto &new;
 }
@@ -163,6 +195,19 @@ You should rewrite the subroutine to returns array reference or hash reference.
 Sub::WrapInType does not support wantarray.
 
 This is a wrapper for the constructor.
+
+=head2 wrap_method(\@parameter_types, $return_type, $subroutine)
+
+This function skips the type check of the first argument:
+
+  sub add {
+    my $class = shift;
+    my ($x, $y) = @_;
+    $x + $y;
+  }
+
+  my $sub = wrap_method [Int, Int], Int, \&add;
+  $sub->(__PACKAGE__, 1, 2); # => 3
 
 =head1 METHODS
 
