@@ -22,25 +22,26 @@ readonly is_method => my %is_method;
 my $TypeConstraint = HasMethods[qw( assert_valid )];
 my $ParamsTypes    = $TypeConstraint | ArrayRef[$TypeConstraint] | Map[Str, $TypeConstraint];
 my $ReturnTypes    = $TypeConstraint | ArrayRef[$TypeConstraint];
+my $Opts           = Dict[skip_invocant => Bool];
 
 sub new {
   my $class = shift;
-  my $opts = shift;
   state $check = multisig(
     +{ message => << 'EOS' },
 USAGE: wrap_sub(\@parameter_types, $return_type, $subroutine)
     or wrap_sub(params => \@params_types, returns => $return_types, code => $subroutine)
 EOS
-    [ $ParamsTypes, $ReturnTypes, CodeRef ],
+    [ $ParamsTypes, $ReturnTypes, CodeRef, $Opts, { default => sub { +{ skip_invocant => 0 } } } ],
     compile_named(
       params => $ParamsTypes,
       isa    => $ReturnTypes,
       code   => CodeRef,
+      opts   => $Opts, { default => sub { +{ skip_invocant => 0 } } },
     ),
   );
-  my ($params_types, $return_types, $code) = do {
+  my ($params_types, $return_types, $code, $opts) = do {
     my @args = $check->(@_);
-    ${^TYPE_PARAMS_MULTISIG} == 0 ? @args : @{ $args[0] }{qw( params isa code )};
+    ${^TYPE_PARAMS_MULTISIG} == 0 ? @args : @{ $args[0] }{qw( params isa code opts )};
   };
 
   my $params_types_checker =
@@ -103,16 +104,34 @@ sub wrap_sub {
   my $opts = {
       skip_invocant => 0,
   };
+
   unshift @_, $opts;
-  unshift @_, __PACKAGE__;
-  goto &new;
+  goto &_wrap_sub;
 }
 
 sub wrap_method {
   my $opts = {
       skip_invocant => 1,
   };
+
   unshift @_, $opts;
+  goto &_wrap_sub;
+}
+
+sub _wrap_sub {
+  my $opts = shift;
+
+  if (@_ == 3) {
+    push @_, $opts;
+  }
+  elsif (ref $_[0] && ref $_[0] eq 'HASH') {
+    $_[0]->{opts} = $opts
+  }
+  elsif (my %args = @_) {
+    $args{opts} = $opts;
+    @_ = %args;
+  }
+
   unshift @_, __PACKAGE__;
   goto &new;
 }
