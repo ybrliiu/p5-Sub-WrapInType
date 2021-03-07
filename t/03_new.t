@@ -18,10 +18,10 @@ subtest 'named / without opts' => sub {
 
 subtest 'named / with opts' => sub {
     my $typed_code = Sub::WrapInType->new(
-        params => [Int],
-        isa    => Int,
-        code   => \&twice,
-        opts   => { skip_invocant => 1 },
+        params  => [Int],
+        isa     => Int,
+        code    => \&twice,
+        options => { skip_invocant => 1 },
     );
 
     isa_ok $typed_code, 'Sub::WrapInType';
@@ -69,10 +69,10 @@ subtest 'named ref / without opts' => sub {
 
 subtest 'named ref / with opts' => sub {
     my $typed_code = Sub::WrapInType->new({
-        params => [Int],
-        isa    => Int,
-        code   => \&twice,
-        opts   => { skip_invocant => 1 },
+        params  => [Int],
+        isa     => Int,
+        code    => \&twice,
+        options => { skip_invocant => 1 },
     });
 
     isa_ok $typed_code, 'Sub::WrapInType';

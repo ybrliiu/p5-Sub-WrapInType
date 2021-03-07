@@ -8,7 +8,7 @@ use Carp ();
 use Hash::Util ();
 use Scalar::Util ();
 use Types::Standard -types;
-use Type::Params qw( multisig compile compile_named Invocant );
+use Type::Params qw( multisig compile compile_named );
 use namespace::autoclean;
 
 our $VERSION = '0.04';
@@ -19,29 +19,26 @@ readonly returns   => my %returns;
 readonly code      => my %code;
 readonly is_method => my %is_method;
 
-my $TypeConstraint = HasMethods[qw( assert_valid )];
-my $ParamsTypes    = $TypeConstraint | ArrayRef[$TypeConstraint] | Map[Str, $TypeConstraint];
-my $ReturnTypes    = $TypeConstraint | ArrayRef[$TypeConstraint];
-my $Opts           = Dict[skip_invocant => Bool];
+my $TypeConstraint  = HasMethods[qw( assert_valid )];
+my $ParamsTypes     = $TypeConstraint | ArrayRef[$TypeConstraint] | Map[Str, $TypeConstraint];
+my $ReturnTypes     = $TypeConstraint | ArrayRef[$TypeConstraint];
+my $Options         = Dict[ skip_invocant => Bool ];
+my $DEFAULT_OPTIONS = +{ skip_invocant => 0 };
 
 sub new {
   my $class = shift;
   state $check = multisig(
-    +{ message => << 'EOS' },
-USAGE: wrap_sub(\@parameter_types, $return_type, $subroutine)
-    or wrap_sub(params => \@params_types, returns => $return_types, code => $subroutine)
-EOS
-    [ $ParamsTypes, $ReturnTypes, CodeRef, $Opts, { default => sub { +{ skip_invocant => 0 } } } ],
+    [ $ParamsTypes, $ReturnTypes, CodeRef, $Options, +{ default => sub { $DEFAULT_OPTIONS } } ],
     compile_named(
-      params => $ParamsTypes,
-      isa    => $ReturnTypes,
-      code   => CodeRef,
-      opts   => $Opts, { default => sub { +{ skip_invocant => 0 } } },
+      params  => $ParamsTypes,
+      isa     => $ReturnTypes,
+      code    => CodeRef,
+      options => $Options, +{ default => sub { $DEFAULT_OPTIONS } },
     ),
   );
-  my ($params_types, $return_types, $code, $opts) = do {
+  my ($params_types, $return_types, $code, $options) = do {
     my @args = $check->(@_);
-    ${^TYPE_PARAMS_MULTISIG} == 0 ? @args : @{ $args[0] }{qw( params isa code opts )};
+    ${^TYPE_PARAMS_MULTISIG} == 0 ? @args : @{ $args[0] }{qw( params isa code options )};
   };
 
   my $params_types_checker =
@@ -53,7 +50,7 @@ EOS
 
   my $typed_code = do {
     if (ref $return_types eq 'ARRAY') {
-      if ($opts->{skip_invocant}) {
+      if ($options->{skip_invocant}) {
         sub {
           my @return_values = $code->( shift, $params_types_checker->(@_) );
           $return_types_checker->(@return_values);
@@ -61,15 +58,15 @@ EOS
         };
       }
       else {
-          sub {
-            my @return_values = $code->( $params_types_checker->(@_) );
-            $return_types_checker->(@return_values);
-            @return_values;
-          };
+        sub {
+          my @return_values = $code->( $params_types_checker->(@_) );
+          $return_types_checker->(@return_values);
+          @return_values;
+        };
       }
     }
     else {
-      if ($opts->{skip_invocant}) {
+      if ($options->{skip_invocant}) {
         sub {
           my $return_value = $code->( shift, $params_types_checker->(@_) );
           $return_types_checker->($return_value);
@@ -94,46 +91,52 @@ EOS
     $params{$addr}    = $params_types;
     $returns{$addr}   = $return_types;
     $code{$addr}      = $code;
-    $is_method{$addr} = !!$opts->{skip_invocant};
+    $is_method{$addr} = !!$options->{skip_invocant};
   }
 
   $self;
 }
 
 sub wrap_sub {
-  my $opts = {
-      skip_invocant => 0,
+  state $check = multisig(
+    +{ message => << 'EOS' },
+USAGE: wrap_sub(\@parameter_types, $return_type, $subroutine)
+    or wrap_sub(params => \@params_types, returns => $return_types, code => $subroutine)
+EOS
+    [ $ParamsTypes, $ReturnTypes, CodeRef ],
+    compile_named(
+      params => $ParamsTypes,
+      isa    => $ReturnTypes,
+      code   => CodeRef,
+    ),
+  );
+  my ($params_types, $return_types, $code) = do {
+    my @args = $check->(@_);
+    ${^TYPE_PARAMS_MULTISIG} == 0 ? @args : @{ $args[0] }{qw( params isa code )};
   };
 
-  unshift @_, $opts;
-  goto &_wrap_sub;
+  __PACKAGE__->new($params_types, $return_types, $code);
 }
 
 sub wrap_method {
-  my $opts = {
-      skip_invocant => 1,
+  state $check = multisig(
+    +{ message => << 'EOS' },
+USAGE: wrap_method(\@parameter_types, $return_type, $subroutine)
+    or wrap_method(params => \@params_types, returns => $return_types, code => $subroutine)
+EOS
+    [ $ParamsTypes, $ReturnTypes, CodeRef ],
+    compile_named(
+      params => $ParamsTypes,
+      isa    => $ReturnTypes,
+      code   => CodeRef,
+    ),
+  );
+  my ($params_types, $return_types, $code) = do {
+    my @args = $check->(@_);
+    ${^TYPE_PARAMS_MULTISIG} == 0 ? @args : @{ $args[0] }{qw( params isa code )};
   };
 
-  unshift @_, $opts;
-  goto &_wrap_sub;
-}
-
-sub _wrap_sub {
-  my $opts = shift;
-
-  if (@_ == 3) {
-    push @_, $opts;
-  }
-  elsif (ref $_[0] && ref $_[0] eq 'HASH') {
-    $_[0]->{opts} = $opts
-  }
-  elsif (my %args = @_) {
-    $args{opts} = $opts;
-    @_ = %args;
-  }
-
-  unshift @_, __PACKAGE__;
-  goto &new;
+  __PACKAGE__->new($params_types, $return_types, $code, +{ skip_invocant => 1 });
 }
 
 1;
