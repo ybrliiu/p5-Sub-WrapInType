@@ -22,8 +22,14 @@ readonly is_method => my %is_method;
 my $TypeConstraint  = HasMethods[qw( assert_valid )];
 my $ParamsTypes     = $TypeConstraint | ArrayRef[$TypeConstraint] | Map[Str, $TypeConstraint];
 my $ReturnTypes     = $TypeConstraint | ArrayRef[$TypeConstraint];
-my $Options         = Dict[ skip_invocant => Bool ];
-my $DEFAULT_OPTIONS = +{ skip_invocant => 0 };
+my $Options         = Dict[
+  skip_invocant => Bool,
+  check_type    => Bool,
+];
+my $DEFAULT_OPTIONS = +{
+  skip_invocant => 0,
+  check_type    => 1,
+};
 
 sub new {
   my $class = shift;
@@ -41,47 +47,10 @@ sub new {
     ${^TYPE_PARAMS_MULTISIG} == 0 ? @args : @{ $args[0] }{qw( params isa code options )};
   };
 
-  my $params_types_checker =
-      ref $params_types eq 'ARRAY' ? compile(@$params_types)
-    : ref $params_types eq 'HASH'  ? compile_named(%$params_types)
-    :                                compile($params_types);
-  my $return_types_checker =
-    ref $return_types eq 'ARRAY' ? compile(@$return_types) : compile($return_types);
-
-  my $typed_code = do {
-    if (ref $return_types eq 'ARRAY') {
-      if ($options->{skip_invocant}) {
-        sub {
-          my @return_values = $code->( shift, $params_types_checker->(@_) );
-          $return_types_checker->(@return_values);
-          @return_values;
-        };
-      }
-      else {
-        sub {
-          my @return_values = $code->( $params_types_checker->(@_) );
-          $return_types_checker->(@return_values);
-          @return_values;
-        };
-      }
-    }
-    else {
-      if ($options->{skip_invocant}) {
-        sub {
-          my $return_value = $code->( shift, $params_types_checker->(@_) );
-          $return_types_checker->($return_value);
-          $return_value;
-        };
-      }
-      else {
-        sub {
-          my $return_value = $code->( $params_types_checker->(@_) );
-          $return_types_checker->($return_value);
-          $return_value;
-        };
-      }
-    }
-  };
+  my $typed_code =
+      $options->{check}
+    ? $class->_create_typed_code($params_types, $return_types, $code, $options)
+    : $code;
 
   my $self = bless $typed_code, $class;
   register($self);
@@ -95,6 +64,49 @@ sub new {
   }
 
   $self;
+}
+
+sub _create_typed_code {
+  my ($class, $params_types, $return_types, $code, $options) = @_;
+  my $params_types_checker =
+      ref $params_types eq 'ARRAY' ? compile(@$params_types)
+    : ref $params_types eq 'HASH'  ? compile_named(%$params_types)
+    :                                compile($params_types);
+  my $return_types_checker =
+    ref $return_types eq 'ARRAY' ? compile(@$return_types) : compile($return_types);
+
+  if ( ref $return_types eq 'ARRAY' ) {
+    if ( $options->{skip_invocant} ) {
+      sub {
+        my @return_values = $code->( shift, $params_types_checker->(@_) );
+        $return_types_checker->(@return_values);
+        @return_values;
+      };
+    }
+    else {
+      sub {
+        my @return_values = $code->( $params_types_checker->(@_) );
+        $return_types_checker->(@return_values);
+        @return_values;
+      };
+    }
+  }
+  else {
+    if ( $options->{skip_invocant} ) {
+      sub {
+        my $return_value = $code->( shift, $params_types_checker->(@_) );
+        $return_types_checker->($return_value);
+        $return_value;
+      };
+    }
+    else {
+      sub {
+        my $return_value = $code->( $params_types_checker->(@_) );
+        $return_types_checker->($return_value);
+        $return_value;
+      };
+    }
+  }
 }
 
 sub wrap_sub {
@@ -218,8 +230,6 @@ You should rewrite the subroutine to returns array reference or hash reference.
 
 Sub::WrapInType does not support wantarray.
 
-This is a wrapper for the constructor.
-
 =head2 wrap_method(\@parameter_types, $return_type, $subroutine)
 
 This function skips the type check of the first argument:
@@ -235,7 +245,7 @@ This function skips the type check of the first argument:
 
 =head1 METHODS
 
-=head2 new(\@parameter_types, $return_type, $subroutine)
+=head2 new(\@parameter_types, $return_type, $subroutine, $options)
 
 Constract a new Sub::WrapInType object.
 
