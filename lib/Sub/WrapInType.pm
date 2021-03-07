@@ -23,12 +23,12 @@ my $TypeConstraint  = HasMethods[qw( assert_valid )];
 my $ParamsTypes     = $TypeConstraint | ArrayRef[$TypeConstraint] | Map[Str, $TypeConstraint];
 my $ReturnTypes     = $TypeConstraint | ArrayRef[$TypeConstraint];
 my $Options         = Dict[
-  skip_invocant => Bool,
-  check_type    => Bool,
+  skip_invocant => Optional[Bool],
+  check         => Optional[Bool],
 ];
 my $DEFAULT_OPTIONS = +{
   skip_invocant => 0,
-  check_type    => 1,
+  check         => 1,
 };
 
 sub new {
@@ -46,11 +46,12 @@ sub new {
     my @args = $check->(@_);
     ${^TYPE_PARAMS_MULTISIG} == 0 ? @args : @{ $args[0] }{qw( params isa code options )};
   };
+  $options = +{ %$DEFAULT_OPTIONS, %$options };
 
   my $typed_code =
       $options->{check}
     ? $class->_create_typed_code($params_types, $return_types, $code, $options)
-    : $code;
+    : sub { $code->(@_) };
 
   my $self = bless $typed_code, $class;
   register($self);

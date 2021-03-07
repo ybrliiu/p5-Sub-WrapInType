@@ -1,83 +1,128 @@
 use Test2::V0;
-use Types::Standard qw( Int );
+use Types::Standard qw( Int Undef );
 use Sub::WrapInType ();
 
 sub twice { $_[0] * 2 }
 
-subtest 'named / without opts' => sub {
-    my $typed_code = Sub::WrapInType->new(
-        params => [Int],
-        isa    => Int,
-        code   => \&twice,
-    );
+sub twice_method {
+  my ($class, $num) = @_;
+  $num * 2;
+}
 
-    isa_ok $typed_code, 'Sub::WrapInType';
-    is $typed_code->code, \&twice;
-    ok !$typed_code->is_method;
+subtest 'Pass argments' => sub {
+  
+  subtest 'Default / named' => sub {
+    my $wrong_typed_code = Sub::WrapInType->new(
+      params  => Int,
+      isa     => Undef,
+      code    => \&twice,
+    );
+    ok !$wrong_typed_code->is_method;
+    like(
+      dies { $wrong_typed_code->(2) },
+      qr/Value "4" did not pass type constraint "Undef"/,
+      'Check option is enable on default.',
+    );
+  };
+  
+  subtest 'Default / sequenced' => sub {
+    my $wrong_typed_code = Sub::WrapInType->new(Int ,=> Undef, \&twice);
+    ok !$wrong_typed_code->is_method;
+    like(
+      dies { $wrong_typed_code->(2) },
+      qr/Value "4" did not pass type constraint "Undef"/,
+      'Check option is enable on default.',
+    );
+  };
+
 };
 
-subtest 'named / with opts' => sub {
-    my $typed_code = Sub::WrapInType->new(
-        params  => [Int],
-        isa     => Int,
-        code    => \&twice,
-        options => { skip_invocant => 1 },
-    );
+subtest 'Use check option' => sub {
+  
+  subtest 'Enable' => sub {
 
-    isa_ok $typed_code, 'Sub::WrapInType';
-    is $typed_code->code, \&twice;
+    my $wrong_return_type = Sub::WrapInType->new(
+      params  => Int,
+      isa     => Undef,
+      code    => \&twice,
+      options => +{ check => 1 },
+    );
+    like dies { $wrong_return_type->(2) }, qr/Value "4" did not pass type constraint "Undef"/;
+
+    my $wrong_params_type = Sub::WrapInType->new(
+      params  => [Int, Int],
+      isa     => Undef,
+      code    => \&twice,
+      options => +{ check => 1 },
+    );
+    like dies { $wrong_params_type->(2) }, qr/Wrong number of parameters; got 1; expected 2/;
+
+    my $right = Sub::WrapInType->new(
+      params  => Int,
+      isa     => Int,
+      code    => \&twice,
+      options => +{ check => 1 },
+    );
+    ok lives { $right->(2) };
+
+  };
+
+  subtest 'Disable' => sub {
+
+    my $wrong_return_type = Sub::WrapInType->new(
+      params  => Int,
+      isa     => Undef,
+      code    => \&twice,
+      options => +{ check => 0 },
+    );
+    ok lives { $wrong_return_type->(2) };
+
+    my $wrong_params_type = Sub::WrapInType->new(
+      params  => [Int, Int],
+      isa     => Undef,
+      code    => \&twice,
+      options => +{ check => 0 },
+    );
+    ok lives { $wrong_params_type->(2) };
+
+    my $right = Sub::WrapInType->new(
+      params  => Int,
+      isa     => Int,
+      code    => \&twice,
+      options => +{ check => 0 },
+    );
+    ok lives { $right->(2) };
+
+  };
+
+};
+
+subtest 'Use skip_invocant option' => sub {
+
+  subtest 'Enable' => sub {
+    my $typed_code = Sub::WrapInType->new(
+      params  => Int,
+      isa     => Int,
+      code    => \&twice_method,
+      options => +{ skip_invocant => 1 },
+    );
     ok $typed_code->is_method;
-};
+    ok lives { $typed_code->('SomeClass', 2) };
+    like dies { $typed_code->(2) }, qr/Wrong number of parameters; got 0; expected 1/;
+  };
 
-subtest 'sequenced / without opts' => sub {
+  subtest 'Disable' => sub {
     my $typed_code = Sub::WrapInType->new(
-        [Int],
-        Int,
-        \&twice,
+      params  => Int,
+      isa     => Int,
+      code    => \&twice_method,
+      options => +{ skip_invocant => 0 },
     );
-
-    isa_ok $typed_code, 'Sub::WrapInType';
-    is $typed_code->code, \&twice;
     ok !$typed_code->is_method;
-};
+    like dies { $typed_code->('SomeClass', 2) }, qr/Wrong number of parameters; got 2; expected 1/;
+    ok lives { $typed_code->(2) };
+  };
 
-subtest 'sequenced / with opts' => sub {
-    my $typed_code = Sub::WrapInType->new(
-        [Int],
-        Int,
-        \&twice,
-        { skip_invocant => 1 },
-    );
-
-    isa_ok $typed_code, 'Sub::WrapInType';
-    is $typed_code->code, \&twice;
-    ok $typed_code->is_method;
-};
-
-
-subtest 'named ref / without opts' => sub {
-    my $typed_code = Sub::WrapInType->new({
-        params => [Int],
-        isa    => Int,
-        code   => \&twice,
-    });
-
-    isa_ok $typed_code, 'Sub::WrapInType';
-    is $typed_code->code, \&twice;
-    ok !$typed_code->is_method;
-};
-
-subtest 'named ref / with opts' => sub {
-    my $typed_code = Sub::WrapInType->new({
-        params  => [Int],
-        isa     => Int,
-        code    => \&twice,
-        options => { skip_invocant => 1 },
-    });
-
-    isa_ok $typed_code, 'Sub::WrapInType';
-    is $typed_code->code, \&twice;
-    ok $typed_code->is_method;
 };
 
 done_testing;
