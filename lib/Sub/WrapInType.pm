@@ -12,15 +12,17 @@ use Type::Params qw( multisig compile compile_named Invocant );
 use namespace::autoclean;
 
 our $VERSION = '0.04';
-our @EXPORT  = qw( wrap_sub );
+our @EXPORT  = qw( wrap_sub wrap_method );
 
-readonly params  => my %params;
-readonly returns => my %returns;
-readonly code    => my %code;
+readonly params    => my %params;
+readonly returns   => my %returns;
+readonly code      => my %code;
+readonly is_method => my %is_method;
 
 my $TypeConstraint = HasMethods[qw( assert_valid )];
 my $ParamsTypes    = $TypeConstraint | ArrayRef[$TypeConstraint] | Map[Str, $TypeConstraint];
 my $ReturnTypes    = $TypeConstraint | ArrayRef[$TypeConstraint];
+my $Opts           = Dict[skip_invocant => Bool];
 
 sub new {
   my $class = shift;
@@ -29,16 +31,17 @@ sub new {
 USAGE: wrap_sub(\@parameter_types, $return_type, $subroutine)
     or wrap_sub(params => \@params_types, returns => $return_types, code => $subroutine)
 EOS
-    [ $ParamsTypes, $ReturnTypes, CodeRef ],
+    [ $ParamsTypes, $ReturnTypes, CodeRef, $Opts, { default => sub { +{ skip_invocant => 0 } } } ],
     compile_named(
       params => $ParamsTypes,
       isa    => $ReturnTypes,
       code   => CodeRef,
+      opts   => $Opts, { default => sub { +{ skip_invocant => 0 } } },
     ),
   );
-  my ($params_types, $return_types, $code) = do {
+  my ($params_types, $return_types, $code, $opts) = do {
     my @args = $check->(@_);
-    ${^TYPE_PARAMS_MULTISIG} == 0 ? @args : @{ $args[0] }{qw( params isa code )};
+    ${^TYPE_PARAMS_MULTISIG} == 0 ? @args : @{ $args[0] }{qw( params isa code opts )};
   };
 
   my $params_types_checker =
@@ -50,18 +53,36 @@ EOS
 
   my $typed_code = do {
     if (ref $return_types eq 'ARRAY') {
-      sub {
-        my @return_values = $code->( $params_types_checker->(@_) );
-        $return_types_checker->(@return_values);
-        @return_values;
-      };
+      if ($opts->{skip_invocant}) {
+        sub {
+          my @return_values = $code->( shift, $params_types_checker->(@_) );
+          $return_types_checker->(@return_values);
+          @return_values;
+        };
+      }
+      else {
+          sub {
+            my @return_values = $code->( $params_types_checker->(@_) );
+            $return_types_checker->(@return_values);
+            @return_values;
+          };
+      }
     }
     else {
-      sub {
-        my $return_value = $code->( $params_types_checker->(@_) );
-        $return_types_checker->($return_value);
-        $return_value;
-      };
+      if ($opts->{skip_invocant}) {
+        sub {
+          my $return_value = $code->( shift, $params_types_checker->(@_) );
+          $return_types_checker->($return_value);
+          $return_value;
+        };
+      }
+      else {
+        sub {
+          my $return_value = $code->( $params_types_checker->(@_) );
+          $return_types_checker->($return_value);
+          $return_value;
+        };
+      }
     }
   };
 
@@ -70,15 +91,47 @@ EOS
 
   {
     my $addr = id $self;
-    $params{$addr}  = $params_types;
-    $returns{$addr} = $return_types;
-    $code{$addr}    = $code;
+    $params{$addr}    = $params_types;
+    $returns{$addr}   = $return_types;
+    $code{$addr}      = $code;
+    $is_method{$addr} = !!$opts->{skip_invocant};
   }
 
   $self;
 }
 
 sub wrap_sub {
+  my $opts = {
+      skip_invocant => 0,
+  };
+
+  unshift @_, $opts;
+  goto &_wrap_sub;
+}
+
+sub wrap_method {
+  my $opts = {
+      skip_invocant => 1,
+  };
+
+  unshift @_, $opts;
+  goto &_wrap_sub;
+}
+
+sub _wrap_sub {
+  my $opts = shift;
+
+  if (@_ == 3) {
+    push @_, $opts;
+  }
+  elsif (ref $_[0] && ref $_[0] eq 'HASH') {
+    $_[0]->{opts} = $opts
+  }
+  elsif (my %args = @_) {
+    $args{opts} = $opts;
+    @_ = %args;
+  }
+
   unshift @_, __PACKAGE__;
   goto &new;
 }
@@ -163,6 +216,19 @@ You should rewrite the subroutine to returns array reference or hash reference.
 Sub::WrapInType does not support wantarray.
 
 This is a wrapper for the constructor.
+
+=head2 wrap_method(\@parameter_types, $return_type, $subroutine)
+
+This function skips the type check of the first argument:
+
+  sub add {
+    my $class = shift;
+    my ($x, $y) = @_;
+    $x + $y;
+  }
+
+  my $sub = wrap_method [Int, Int], Int, \&add;
+  $sub->(__PACKAGE__, 1, 2); # => 3
 
 =head1 METHODS
 

@@ -74,6 +74,19 @@ Sub::WrapInType does not support wantarray.
 
 This is a wrapper for the constructor.
 
+## wrap\_method(\\@parameter\_types, $return\_type, $subroutine)
+
+This function skips the type check of the first argument:
+
+    sub add {
+      my $class = shift;
+      my ($x, $y) = @_;
+      $x + $y;
+    }
+
+    my $sub = wrap_method [Int, Int], Int, \&add;
+    $sub->(__PACKAGE__, 1, 2); # => 3
+
 # METHODS
 
 ## new(\\@parameter\_types, $return\_type, $subroutine)
