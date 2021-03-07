@@ -234,6 +234,8 @@ You can pass named parameters.
     },
   );
 
+If the <PERL_NDEBUG> or the <NDEBUG> environment variable is true, the subroutine will not check the argument type and return type.
+
 If subroutine returns array or hash, Sub::WrapInType will not be able to check the type as you intended.
 You should rewrite the subroutine to returns array reference or hash reference.
 
@@ -262,6 +264,30 @@ Constract a new Sub::WrapInType object.
   use Sub::WrapInType;
   my $wraped_sub = Sub::WrapInType->new([Int, Int] => Int, sub { $_[0] + $_[1] });
 
+You can pass options.
+
+=over 2
+
+=item *
+
+B<< check >>
+
+Default: true
+
+The created subroutine check the argument type and return type.
+
+If you don't want to check the argument type and return type, pass false.
+
+=item *
+
+B<< skip_invocant >>
+
+Default: false
+
+The created subroutine skips the type check of the first argument.
+
+=back
+
 =head1 LICENSE
 
 Copyright (C) mp0liiu.
@@ -275,7 +301,7 @@ mp0liiu E<lt>mpoliiu@cpan.orgE<gt>
 
 =head1 SEE ALSE
 
-L<Type::Params> exports the function wrap_sub. It check only parameters type.
+L<Type::Params> exports the function wrap_subs. It check only parameters type.
 
 =cut
 
