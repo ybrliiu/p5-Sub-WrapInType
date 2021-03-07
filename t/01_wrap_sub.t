@@ -60,6 +60,14 @@ subtest 'Create typed anonymous subroutine' => sub {
     );
   };
 
+  ok lives {
+    wrap_sub({
+      params => Int,
+      isa    => Int,
+      code   => sub { }
+    });
+  }, 'hashref arguments';
+
   ok dies { wrap_sub }, 'Too few arguments.';
 
   ok dies { wrap_sub \(my $wrap_sub) => Int, sub {} };
@@ -76,6 +84,14 @@ subtest 'Create typed anonymous subroutine' => sub {
       },
     );
   }, 'Wrong key.';
+
+  ok dies {
+    wrap_sub([
+      Int,
+      Int,
+      sub { }
+    ]);
+  }, 'arrayref arguments';
   
 };
 
