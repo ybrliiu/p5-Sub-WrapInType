@@ -11,7 +11,7 @@ use Types::Standard -types;
 use Type::Params qw( multisig compile compile_named );
 use namespace::autoclean;
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 our @EXPORT  = qw( wrap_sub wrap_method );
 
 readonly params    => my %params;
