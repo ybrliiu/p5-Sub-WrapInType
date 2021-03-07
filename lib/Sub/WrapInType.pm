@@ -110,6 +110,10 @@ sub _create_typed_code {
   }
 }
 
+sub _is_env_ndebug {
+  $ENV{PERL_NDEBUG} || $ENV{NDEBUG};
+}
+
 sub wrap_sub {
   state $check = multisig(
     +{ message => << 'EOS' },
@@ -128,7 +132,7 @@ EOS
     ${^TYPE_PARAMS_MULTISIG} == 0 ? @args : @{ $args[0] }{qw( params isa code )};
   };
 
-  __PACKAGE__->new($params_types, $return_types, $code);
+  __PACKAGE__->new($params_types, $return_types, $code, +{ check => !_is_env_ndebug() });
 }
 
 sub wrap_method {
@@ -149,7 +153,11 @@ EOS
     ${^TYPE_PARAMS_MULTISIG} == 0 ? @args : @{ $args[0] }{qw( params isa code )};
   };
 
-  __PACKAGE__->new($params_types, $return_types, $code, +{ skip_invocant => 1 });
+  my $options = +{
+    skip_invocant => 1,
+    check         => !_is_env_ndebug(),
+  };
+  __PACKAGE__->new($params_types, $return_types, $code, $options);
 }
 
 1;

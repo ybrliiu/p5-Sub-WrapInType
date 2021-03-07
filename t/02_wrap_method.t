@@ -27,4 +27,21 @@ subtest 'multi return types' => sub {
     ok $typed_code->is_method;
 };
 
+subtest 'Use NDEBUG environment variable' => sub {
+  my $wrong = wrap_method Int ,=> Int, sub { undef };
+  like dies { $wrong->(__PACKAGE__, 1) }, qr/Undef did not pass type constraint "Int"/;
+
+  {
+    local $ENV{PERL_NDEBUG} = 1;
+    my $wrong = wrap_method Int ,=> Int, sub { undef };
+    ok lives { $wrong->() };
+  }
+
+  {
+    local $ENV{NDEBUG} = 1;
+    my $wrong = wrap_method Int ,=> Int, sub { undef };
+    ok lives { $wrong->() };
+  }
+};
+
 done_testing;
