@@ -2,7 +2,7 @@ use 5.010001;
 use strict;
 use warnings;
 use Test2::V0;
-use Types::Standard qw( Int );
+use Types::Standard qw( Int Undef );
 use Sub::WrapInType qw( wrap_sub );
 
 subtest 'Create typed anonymous subroutine' => sub {
@@ -120,6 +120,21 @@ subtest 'Run typed anonymous subroutine' => sub {
     $x, $y;
   };
   is [ $multi_return_values->(2, 4) ], [2, 4], 'Multiple return values.';
+
+  my $wrong = wrap_sub Int ,=> Int, sub { undef };
+  like dies { $wrong->(1) }, qr/Undef did not pass type constraint "Int"/;
+
+  {
+    local $ENV{PERL_NDEBUG} = 1;
+    my $wrong = wrap_sub Int ,=> Int, sub { undef };
+    ok lives { $wrong->() };
+  }
+
+  {
+    local $ENV{NDEBUG} = 1;
+    my $wrong = wrap_sub Int ,=> Int, sub { undef };
+    ok lives { $wrong->() };
+  }
 
 };
 

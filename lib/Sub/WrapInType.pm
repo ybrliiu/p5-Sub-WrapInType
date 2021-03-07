@@ -22,8 +22,14 @@ readonly is_method => my %is_method;
 my $TypeConstraint  = HasMethods[qw( assert_valid )];
 my $ParamsTypes     = $TypeConstraint | ArrayRef[$TypeConstraint] | Map[Str, $TypeConstraint];
 my $ReturnTypes     = $TypeConstraint | ArrayRef[$TypeConstraint];
-my $Options         = Dict[ skip_invocant => Bool ];
-my $DEFAULT_OPTIONS = +{ skip_invocant => 0 };
+my $Options         = Dict[
+  skip_invocant => Optional[Bool],
+  check         => Optional[Bool],
+];
+my $DEFAULT_OPTIONS = +{
+  skip_invocant => 0,
+  check         => 1,
+};
 
 sub new {
   my $class = shift;
@@ -40,48 +46,12 @@ sub new {
     my @args = $check->(@_);
     ${^TYPE_PARAMS_MULTISIG} == 0 ? @args : @{ $args[0] }{qw( params isa code options )};
   };
+  $options = +{ %$DEFAULT_OPTIONS, %$options };
 
-  my $params_types_checker =
-      ref $params_types eq 'ARRAY' ? compile(@$params_types)
-    : ref $params_types eq 'HASH'  ? compile_named(%$params_types)
-    :                                compile($params_types);
-  my $return_types_checker =
-    ref $return_types eq 'ARRAY' ? compile(@$return_types) : compile($return_types);
-
-  my $typed_code = do {
-    if (ref $return_types eq 'ARRAY') {
-      if ($options->{skip_invocant}) {
-        sub {
-          my @return_values = $code->( shift, $params_types_checker->(@_) );
-          $return_types_checker->(@return_values);
-          @return_values;
-        };
-      }
-      else {
-        sub {
-          my @return_values = $code->( $params_types_checker->(@_) );
-          $return_types_checker->(@return_values);
-          @return_values;
-        };
-      }
-    }
-    else {
-      if ($options->{skip_invocant}) {
-        sub {
-          my $return_value = $code->( shift, $params_types_checker->(@_) );
-          $return_types_checker->($return_value);
-          $return_value;
-        };
-      }
-      else {
-        sub {
-          my $return_value = $code->( $params_types_checker->(@_) );
-          $return_types_checker->($return_value);
-          $return_value;
-        };
-      }
-    }
-  };
+  my $typed_code =
+      $options->{check}
+    ? $class->_create_typed_code($params_types, $return_types, $code, $options)
+    : sub { $code->(@_) };
 
   my $self = bless $typed_code, $class;
   register($self);
@@ -95,6 +65,53 @@ sub new {
   }
 
   $self;
+}
+
+sub _create_typed_code {
+  my ($class, $params_types, $return_types, $code, $options) = @_;
+  my $params_types_checker =
+      ref $params_types eq 'ARRAY' ? compile(@$params_types)
+    : ref $params_types eq 'HASH'  ? compile_named(%$params_types)
+    :                                compile($params_types);
+  my $return_types_checker =
+    ref $return_types eq 'ARRAY' ? compile(@$return_types) : compile($return_types);
+
+  if ( ref $return_types eq 'ARRAY' ) {
+    if ( $options->{skip_invocant} ) {
+      sub {
+        my @return_values = $code->( shift, $params_types_checker->(@_) );
+        $return_types_checker->(@return_values);
+        @return_values;
+      };
+    }
+    else {
+      sub {
+        my @return_values = $code->( $params_types_checker->(@_) );
+        $return_types_checker->(@return_values);
+        @return_values;
+      };
+    }
+  }
+  else {
+    if ( $options->{skip_invocant} ) {
+      sub {
+        my $return_value = $code->( shift, $params_types_checker->(@_) );
+        $return_types_checker->($return_value);
+        $return_value;
+      };
+    }
+    else {
+      sub {
+        my $return_value = $code->( $params_types_checker->(@_) );
+        $return_types_checker->($return_value);
+        $return_value;
+      };
+    }
+  }
+}
+
+sub _is_env_ndebug {
+  $ENV{PERL_NDEBUG} || $ENV{NDEBUG};
 }
 
 sub wrap_sub {
@@ -115,7 +132,7 @@ EOS
     ${^TYPE_PARAMS_MULTISIG} == 0 ? @args : @{ $args[0] }{qw( params isa code )};
   };
 
-  __PACKAGE__->new($params_types, $return_types, $code);
+  __PACKAGE__->new($params_types, $return_types, $code, +{ check => !_is_env_ndebug() });
 }
 
 sub wrap_method {
@@ -136,7 +153,11 @@ EOS
     ${^TYPE_PARAMS_MULTISIG} == 0 ? @args : @{ $args[0] }{qw( params isa code )};
   };
 
-  __PACKAGE__->new($params_types, $return_types, $code, +{ skip_invocant => 1 });
+  my $options = +{
+    skip_invocant => 1,
+    check         => !_is_env_ndebug(),
+  };
+  __PACKAGE__->new($params_types, $return_types, $code, $options);
 }
 
 1;
@@ -213,12 +234,12 @@ You can pass named parameters.
     },
   );
 
+If the <PERL_NDEBUG> or the <NDEBUG> environment variable is true, the subroutine will not check the argument type and return type.
+
 If subroutine returns array or hash, Sub::WrapInType will not be able to check the type as you intended.
 You should rewrite the subroutine to returns array reference or hash reference.
 
 Sub::WrapInType does not support wantarray.
-
-This is a wrapper for the constructor.
 
 =head2 wrap_method(\@parameter_types, $return_type, $subroutine)
 
@@ -235,13 +256,37 @@ This function skips the type check of the first argument:
 
 =head1 METHODS
 
-=head2 new(\@parameter_types, $return_type, $subroutine)
+=head2 new(\@parameter_types, $return_type, $subroutine, $options)
 
 Constract a new Sub::WrapInType object.
 
   use Types::Standard -types;
   use Sub::WrapInType;
   my $wraped_sub = Sub::WrapInType->new([Int, Int] => Int, sub { $_[0] + $_[1] });
+
+You can pass options.
+
+=over 2
+
+=item *
+
+B<< check >>
+
+Default: true
+
+The created subroutine check the argument type and return type.
+
+If you don't want to check the argument type and return type, pass false.
+
+=item *
+
+B<< skip_invocant >>
+
+Default: false
+
+The created subroutine skips the type check of the first argument.
+
+=back
 
 =head1 LICENSE
 
@@ -256,7 +301,7 @@ mp0liiu E<lt>mpoliiu@cpan.orgE<gt>
 
 =head1 SEE ALSE
 
-L<Type::Params> exports the function wrap_sub. It check only parameters type.
+L<Type::Params> exports the function wrap_subs. It check only parameters type.
 
 =cut
 
