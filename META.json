@@ -42,11 +42,8 @@
       },
       "runtime" : {
          "requires" : {
-            "Carp" : "0",
             "Class::InsideOut" : "0",
             "Exporter" : "0",
-            "Hash::Util" : "0",
-            "Scalar::Util" : "0",
             "Type::Tiny" : "1.012000",
             "namespace::autoclean" : "0",
             "perl" : "5.010001"
@@ -71,6 +68,7 @@
       }
    },
    "version" : "0.05",
+   "x_authority" : "cpan:MPOLIIU",
    "x_contributors" : [
       "kfly8 <kfly@cpan.org>",
       "ybrliiu <raian@reeshome.org>"
