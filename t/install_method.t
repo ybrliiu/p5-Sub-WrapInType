@@ -3,9 +3,9 @@ use strict;
 use warnings;
 use Test2::V0;
 use Types::Standard qw( Int Undef );
-use Sub::WrapInType qw( install_method );
+use Sub::WrapInType qw( install_sub );
 
-subtest 'Install typed method' => sub {
+subtest 'Install typed subroutine' => sub {
 
   ok !__PACKAGE__->can('add');
 
@@ -13,12 +13,12 @@ subtest 'Install typed method' => sub {
     params => [ Int, Int ],
     isa    => Int,
     code   => sub {
-      my ($class, $x, $y) = @_;
+      my ($x, $y) = @_;
       $x + $y;
     },
   };
 
-  install_method(
+  install_sub(
     name => 'add',
     %$orig_info,
   );
@@ -39,7 +39,7 @@ subtest 'Install typed method' => sub {
 
   {
     local $ENV{PERL_NDEBUG} = 1;
-    install_method wrong => Int ,=> Int, sub { undef };
+    install_sub wrong => Int ,=> Int, sub { undef };
     ok lives { wrong() };
   }
 

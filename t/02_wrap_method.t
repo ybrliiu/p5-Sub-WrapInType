@@ -21,7 +21,11 @@ subtest 'single return type' => sub {
 };
 
 subtest 'multi return types' => sub {
-    my $typed_code = wrap_method [Int, Int] => [Int, Int], \&add_multi;
+    my $typed_code = wrap_method(
+      params => [Int, Int],
+      isa    => [Int, Int],
+      code   => \&add_multi,
+    );
     my @returns = $typed_code->(__PACKAGE__, 2, 3);
     is \@returns, [5, 6];
     ok $typed_code->is_method;
