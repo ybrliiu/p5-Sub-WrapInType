@@ -18,12 +18,14 @@ subtest 'Install typed method' => sub {
     },
   };
 
-  install_sub(
+  my $wraped_sub = install_sub(
     name => 'add',
     %$orig_info,
   );
 
   ok __PACKAGE__->can('add');
+
+  is $wraped_sub, \&add;
 
   is add(1, 2), 3;
 

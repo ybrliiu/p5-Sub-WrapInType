@@ -177,9 +177,7 @@ EOS
     ${^TYPE_PARAMS_MULTISIG} == 0 ? @args : @{ $args[0] }{qw( name params isa code )};
   };
 
-  my $wraped_sub = wrap_sub($params_types, $return_types, $code);
-  _install($name, $wraped_sub, scalar caller);
-  $wraped_sub;
+  _install($name, wrap_sub($params_types, $return_types, $code), scalar caller);
 }
 
 sub install_method {
@@ -201,9 +199,7 @@ EOS
     ${^TYPE_PARAMS_MULTISIG} == 0 ? @args : @{ $args[0] }{qw( name params isa code )};
   };
 
-  my $wraped_sub = wrap_sub($params_types, $return_types, $code);
-  _install($name, $wraped_sub, scalar caller);
-  $wraped_sub;
+  _install($name, wrap_sub($params_types, $return_types, $code), scalar caller);
 }
 
 sub _install {
