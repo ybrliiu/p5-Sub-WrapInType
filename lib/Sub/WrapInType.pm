@@ -17,7 +17,7 @@ readonly returns   => my %returns;
 readonly code      => my %code;
 readonly is_method => my %is_method;
 
-my $TypeConstraint  = HasMethods[qw( assert_valid )];
+my $TypeConstraint  = HasMethods[qw( check get_message )];
 my $ParamsTypes     = $TypeConstraint | ArrayRef[$TypeConstraint] | Map[Str, $TypeConstraint];
 my $ReturnTypes     = $TypeConstraint | ArrayRef[$TypeConstraint];
 my $Options         = Dict[
