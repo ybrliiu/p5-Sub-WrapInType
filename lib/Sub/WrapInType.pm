@@ -6,6 +6,7 @@ use parent 'Exporter';
 use Class::InsideOut qw( register readonly id );
 use Types::Standard -types;
 use Type::Params qw( multisig compile compile_named );
+use Sub::Util qw( set_subname );
 use namespace::autoclean;
 
 our $VERSION = '0.05';
@@ -155,6 +156,66 @@ EOS
     check         => !_is_env_ndebug(),
   };
   __PACKAGE__->new($params_types, $return_types, $code, $options);
+}
+
+sub install_sub {
+  state $check = multisig(
+    +{ message => << 'EOS' },
+USAGE: install_sub($name, \@parameter_types, $return_type, $subroutine)
+    or install_sub(name => $name, params => \@params_types, returns => $return_types, code => $subroutine)
+EOS
+    [ Str, $ParamsTypes, $ReturnTypes, CodeRef ],
+    compile_named(
+      name   => Str,
+      params => $ParamsTypes,
+      isa    => $ReturnTypes,
+      code   => CodeRef,
+    ),
+  );
+  my ($name, $params_types, $return_types, $code) = do {
+    my @args = $check->(@_);
+    ${^TYPE_PARAMS_MULTISIG} == 0 ? @args : @{ $args[0] }{qw( params isa code )};
+  };
+
+  my $wraped_sub =
+    __PACKAGE__->new($params_types, $return_types, $code, +{ check => !_is_env_ndebug() });
+  _install($name, $wraped_sub);
+}
+
+sub install_method {
+  state $check = multisig(
+    +{ message => << 'EOS' },
+USAGE: install_method($name, \@parameter_types, $return_type, $subroutine)
+    or install_method(name => $name, params => \@params_types, returns => $return_types, code => $subroutine)
+EOS
+    [ Str, $ParamsTypes, $ReturnTypes, CodeRef ],
+    compile_named(
+      name   => Str,
+      params => $ParamsTypes,
+      isa    => $ReturnTypes,
+      code   => CodeRef,
+    ),
+  );
+  my ($name, $params_types, $return_types, $code) = do {
+    my @args = $check->(@_);
+    ${^TYPE_PARAMS_MULTISIG} == 0 ? @args : @{ $args[0] }{qw( params isa code )};
+  };
+
+  my $options = +{
+    skip_invocant => 1,
+    check         => !_is_env_ndebug(),
+  };
+  my $wraped_sub = __PACKAGE__->new($params_types, $return_types, $code, $options);
+  _install($name, $wraped_sub);
+}
+
+sub _install {
+  my ($name, $code) = @_;
+  {
+    no strict 'refs';
+    *{$name} = $code;
+  }
+  set_subname($name, $code);
 }
 
 1;
