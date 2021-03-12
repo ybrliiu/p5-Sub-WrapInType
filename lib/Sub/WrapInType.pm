@@ -177,9 +177,7 @@ EOS
     ${^TYPE_PARAMS_MULTISIG} == 0 ? @args : @{ $args[0] }{qw( params isa code )};
   };
 
-  my $wraped_sub =
-    __PACKAGE__->new($params_types, $return_types, $code, +{ check => !_is_env_ndebug() });
-  _install($name, $wraped_sub);
+  _install($name, wraped_sub($params_types, $return_types, $code));
 }
 
 sub install_method {
@@ -201,12 +199,7 @@ EOS
     ${^TYPE_PARAMS_MULTISIG} == 0 ? @args : @{ $args[0] }{qw( params isa code )};
   };
 
-  my $options = +{
-    skip_invocant => 1,
-    check         => !_is_env_ndebug(),
-  };
-  my $wraped_sub = __PACKAGE__->new($params_types, $return_types, $code, $options);
-  _install($name, $wraped_sub);
+  _install($name, wrap_method($params_types, $return_types, $code));
 }
 
 sub _install {
