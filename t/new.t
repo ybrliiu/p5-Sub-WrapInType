@@ -4,6 +4,8 @@ use Sub::WrapInType ();
 
 sub twice { $_[0] * 2 }
 
+$SIG{__WARN__} = \&Carp::cluck;
+
 sub twice_method {
   my ($class, $num) = @_;
   $num * 2;
@@ -120,7 +122,7 @@ subtest 'Use skip_invocant option' => sub {
     );
     ok !$typed_code->is_method;
     like dies { $typed_code->('SomeClass', 2) }, qr/Wrong number of parameters; got 2; expected 1/;
-    ok lives { $typed_code->(2) };
+    like warning { $typed_code->(2) }, qr/Use of uninitialized value/;
   };
 
 };
