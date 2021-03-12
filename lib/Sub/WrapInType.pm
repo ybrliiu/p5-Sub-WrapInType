@@ -10,7 +10,7 @@ use Sub::Util qw( set_subname );
 use namespace::autoclean;
 
 our $VERSION = '0.05';
-our @EXPORT  = qw( wrap_sub wrap_method );
+our @EXPORT  = qw( wrap_sub wrap_method install_sub install_method );
 
 readonly params    => my %params;
 readonly returns   => my %returns;
@@ -174,10 +174,12 @@ EOS
   );
   my ($name, $params_types, $return_types, $code) = do {
     my @args = $check->(@_);
-    ${^TYPE_PARAMS_MULTISIG} == 0 ? @args : @{ $args[0] }{qw( params isa code )};
+    ${^TYPE_PARAMS_MULTISIG} == 0 ? @args : @{ $args[0] }{qw( name params isa code )};
   };
 
-  _install($name, wraped_sub($params_types, $return_types, $code));
+  my $wraped_sub = wrap_sub($params_types, $return_types, $code);
+  _install($name, $wraped_sub, scalar caller);
+  $wraped_sub;
 }
 
 sub install_method {
@@ -196,17 +198,19 @@ EOS
   );
   my ($name, $params_types, $return_types, $code) = do {
     my @args = $check->(@_);
-    ${^TYPE_PARAMS_MULTISIG} == 0 ? @args : @{ $args[0] }{qw( params isa code )};
+    ${^TYPE_PARAMS_MULTISIG} == 0 ? @args : @{ $args[0] }{qw( name params isa code )};
   };
 
-  _install($name, wrap_method($params_types, $return_types, $code));
+  my $wraped_sub = wrap_sub($params_types, $return_types, $code);
+  _install($name, $wraped_sub, scalar caller);
+  $wraped_sub;
 }
 
 sub _install {
-  my ($name, $code) = @_;
+  my ($name, $code, $pkg) = @_;
   {
     no strict 'refs';
-    *{$name} = $code;
+    *{"${pkg}::${name}"} = $code;
   }
   set_subname($name, $code);
 }
