@@ -68,7 +68,7 @@
          "web" : "https://github.com/ybrliiu/p5-Sub-WrapInType"
       }
    },
-   "version" : "0.05",
+   "version" : "0.06",
    "x_authority" : "cpan:MPOLIIU",
    "x_contributors" : [
       "kfly8 <kfly@cpan.org>",
