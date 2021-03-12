@@ -44,6 +44,7 @@
          "requires" : {
             "Class::InsideOut" : "0",
             "Exporter" : "0",
+            "Sub::Util" : "1.40",
             "Type::Tiny" : "1.012000",
             "namespace::autoclean" : "0",
             "perl" : "5.010001"

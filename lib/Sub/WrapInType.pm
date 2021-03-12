@@ -285,7 +285,7 @@ You can pass named parameters.
     },
   );
 
-If the <PERL_NDEBUG> or the <NDEBUG> environment variable is true, the subroutine will not check the argument type and return type.
+If the C<PERL_NDEBUG> or the C<NDEBUG> environment variable is true, the subroutine will not check the argument type and return type.
 
 If subroutine returns array or hash, Sub::WrapInType will not be able to check the type as you intended.
 You should rewrite the subroutine to returns array reference or hash reference.
@@ -305,6 +305,23 @@ This function skips the type check of the first argument:
   my $sub = wrap_method [Int, Int], Int, \&add;
   $sub->(__PACKAGE__, 1, 2); # => 3
 
+=head2 install_sub($name, \@parameter_types, $return_type, $subroutine)
+
+Install the wrapped subroutine into the current package.
+
+  use Sub::WrapInType qw( install_sub );
+
+  install_sub sum => [ Int, Int ] => Int, sub {
+    my ($x, $y) = @_;
+    $x + $y;
+  };
+  sum(2, 5);  # Returns 7
+  sum('foo'); # Throws an exception
+
+=head2 install_method($name, \@parameter_types, $return_type, $subroutine)
+
+Install the wrapped method into the current package.
+
 =head1 METHODS
 
 =head2 new(\@parameter_types, $return_type, $subroutine, $options)
@@ -315,7 +332,7 @@ Constract a new Sub::WrapInType object.
   use Sub::WrapInType;
   my $wraped_sub = Sub::WrapInType->new([Int, Int] => Int, sub { $_[0] + $_[1] });
 
-You can pass options.
+=head3 options
 
 =over 2
 
