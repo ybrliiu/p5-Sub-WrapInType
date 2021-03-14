@@ -2,6 +2,9 @@ Revision history for Perl extension Sub-WrapInType
 
 {{$NEXT}}
 
+0.07 2021-03-14T02:46:50Z
+    - Fix install_method to install the typed method
+
 0.06 2021-03-12T22:39:27Z
     - Add install_sub function
     - Add install_method function
