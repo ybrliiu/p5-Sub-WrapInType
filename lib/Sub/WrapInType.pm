@@ -199,7 +199,7 @@ EOS
     ${^TYPE_PARAMS_MULTISIG} == 0 ? @args : @{ $args[0] }{qw( name params isa code )};
   };
 
-  _install($name, wrap_sub($params_types, $return_types, $code), scalar caller);
+  _install($name, wrap_method($params_types, $return_types, $code), scalar caller);
 }
 
 sub _install {
