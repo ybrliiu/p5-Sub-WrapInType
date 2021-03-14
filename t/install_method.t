@@ -13,7 +13,7 @@ subtest 'Install typed subroutine' => sub {
     params => [ Int, Int ],
     isa    => Int,
     code   => sub {
-      my ($x, $y) = @_;
+      my ($class, $x, $y) = @_;
       $x + $y;
     },
   };
@@ -27,7 +27,7 @@ subtest 'Install typed subroutine' => sub {
 
   is $wraped_method, \&add;
 
-  is add(1, 2), 3;
+  is __PACKAGE__->add(1, 2), 3;
 
   ok dies { add('string') };
 
@@ -36,7 +36,7 @@ subtest 'Install typed subroutine' => sub {
     call params    => $orig_info->{params};
     call returns   => $orig_info->{returns};
     call code      => $orig_info->{code};
-    call is_method => F;
+    call is_method => T;
   };
 
   {
