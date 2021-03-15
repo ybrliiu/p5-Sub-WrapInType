@@ -204,11 +204,12 @@ EOS
 
 sub _install {
   my ($name, $code, $pkg) = @_;
+  my $fullname = "${pkg}::${name}";
   {
     no strict 'refs';
-    *{"${pkg}::${name}"} = $code;
+    *{$fullname} = $code;
   }
-  set_subname($name, $code);
+  set_subname($fullname, $code);
 }
 
 1;
