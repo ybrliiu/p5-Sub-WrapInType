@@ -138,7 +138,7 @@ EOS
   );
   my ($params_types, $return_types, $code) = do {
     my @args = $check->(@_);
-    ${^TYPE_PARAMS_MULTISIG} == 0 ? @args : @{ $args[0] }{qw( params isa code )};
+    ${^_TYPE_PARAMS_MULTISIG} == 0 ? @args : @{ $args[0] }{qw( params isa code )};
   };
 
   __PACKAGE__->new($params_types, $return_types, $code, +{ check => !_is_env_ndebug() });
@@ -159,7 +159,7 @@ EOS
   );
   my ($params_types, $return_types, $code) = do {
     my @args = $check->(@_);
-    ${^TYPE_PARAMS_MULTISIG} == 0 ? @args : @{ $args[0] }{qw( params isa code )};
+    ${^_TYPE_PARAMS_MULTISIG} == 0 ? @args : @{ $args[0] }{qw( params isa code )};
   };
 
   my $options = +{
@@ -185,7 +185,7 @@ EOS
   );
   my ($name, $params_types, $return_types, $code) = do {
     my @args = $check->(@_);
-    ${^TYPE_PARAMS_MULTISIG} == 0 ? @args : @{ $args[0] }{qw( name params isa code )};
+    ${^_TYPE_PARAMS_MULTISIG} == 0 ? @args : @{ $args[0] }{qw( name params isa code )};
   };
 
   _install($name, wrap_sub($params_types, $return_types, $code), scalar caller);
@@ -207,7 +207,7 @@ EOS
   );
   my ($name, $params_types, $return_types, $code) = do {
     my @args = $check->(@_);
-    ${^TYPE_PARAMS_MULTISIG} == 0 ? @args : @{ $args[0] }{qw( name params isa code )};
+    ${^_TYPE_PARAMS_MULTISIG} == 0 ? @args : @{ $args[0] }{qw( name params isa code )};
   };
 
   _install($name, wrap_method($params_types, $return_types, $code), scalar caller);
