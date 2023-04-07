@@ -5,7 +5,7 @@ use warnings;
 use parent 'Exporter';
 use Class::InsideOut qw( register readonly id );
 use Types::Standard -types;
-use Type::Params qw( multisig compile compile_named );
+use Type::Params qw( signature );
 use Sub::Util qw( set_subname );
 use namespace::autoclean;
 
@@ -25,25 +25,36 @@ my $Options         = Dict[
   check         => Optional[Bool],
 ];
 my $DEFAULT_OPTIONS = +{
-  skip_invocant => 0,
-  check         => 1,
+  method => 0,
+  check  => 1,
 };
 
 sub new {
   my $class = shift;
-  state $check = multisig(
-    [ $ParamsTypes, $ReturnTypes, CodeRef, $Options, +{ default => sub { $DEFAULT_OPTIONS } } ],
-    compile_named(
-      params  => $ParamsTypes,
-      isa     => $ReturnTypes,
-      code    => CodeRef,
-      options => $Options, +{ default => sub { $DEFAULT_OPTIONS } },
-    ),
+  state $check = signature(
+    method => 1,
+    multi => [
+      +{
+        positional => [
+          $ParamsTypes,
+          $ReturnTypes,
+          CodeRef,
+          $Options,
+          +{ default => sub { $DEFAULT_OPTIONS } }
+        ],
+      },
+      +{
+        named_to_list => 1,
+        named => [
+          params  => $ParamsTypes,
+          isa     => $ReturnTypes,
+          code    => CodeRef,
+          options => $Options, +{ default => sub { $DEFAULT_OPTIONS } },
+        ],
+      },
+    ],
   );
-  my ($params_types, $return_types, $code, $options) = do {
-    my @args = $check->(@_);
-    ${^TYPE_PARAMS_MULTISIG} == 0 ? @args : @{ $args[0] }{qw( params isa code options )};
-  };
+  my ($params_types, $return_types, $code, $options) = $check->(@_);
   $options = +{ %$DEFAULT_OPTIONS, %$options };
 
   my $typed_code =
