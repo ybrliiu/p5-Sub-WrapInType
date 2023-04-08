@@ -197,23 +197,25 @@ EOS
 }
 
 sub install_method {
-  state $check = multisig(
-    +{ message => << 'EOS' },
+  state $check = signature(
+    message => << 'EOS',
 USAGE: install_method($name, \@parameter_types, $return_type, $subroutine)
     or install_method(name => $name, params => \@params_types, returns => $return_types, code => $subroutine)
 EOS
-    [ Str, $ParamsTypes, $ReturnTypes, CodeRef ],
-    compile_named(
-      name   => Str,
-      params => $ParamsTypes,
-      isa    => $ReturnTypes,
-      code   => CodeRef,
-    ),
+    multi => [
+      +{ positional => [ Str, $ParamsTypes, $ReturnTypes, CodeRef ] },
+      +{
+        named => [
+          name   => Str,
+          params => $ParamsTypes,
+          isa    => $ReturnTypes,
+          code   => CodeRef,
+        ],
+        named_to_list => 1,
+      },
+    ],
   );
-  my ($name, $params_types, $return_types, $code) = do {
-    my @args = $check->(@_);
-    ${^_TYPE_PARAMS_MULTISIG} == 0 ? @args : @{ $args[0] }{qw( name params isa code )};
-  };
+  my ($name, $params_types, $return_types, $code) = $check->(@_);
 
   _install($name, wrap_method($params_types, $return_types, $code), scalar caller);
 }
