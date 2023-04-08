@@ -25,12 +25,11 @@ my $Options         = Dict[
   check         => Optional[Bool],
 ];
 my $DEFAULT_OPTIONS = +{
-  method => 0,
-  check  => 1,
+  skip_invocant => 0,
+  check         => 1,
 };
 
 sub new {
-  my $class = shift;
   state $check = signature(
     method => 1,
     multi => [
@@ -39,8 +38,7 @@ sub new {
           $ParamsTypes,
           $ReturnTypes,
           CodeRef,
-          $Options,
-          +{ default => sub { $DEFAULT_OPTIONS } }
+          $Options, +{ default => sub { $DEFAULT_OPTIONS } }
         ],
       },
       +{
@@ -54,7 +52,7 @@ sub new {
       },
     ],
   );
-  my ($params_types, $return_types, $code, $options) = $check->(@_);
+  my ($class, $params_types, $return_types, $code, $options) = $check->(@_);
   $options = +{ %$DEFAULT_OPTIONS, %$options };
 
   my $typed_code =
@@ -79,11 +77,12 @@ sub new {
 sub _create_typed_code {
   my ($class, $params_types, $return_types, $code, $options) = @_;
   my $params_types_checker =
-      ref $params_types eq 'ARRAY' ? compile(@$params_types)
-    : ref $params_types eq 'HASH'  ? compile_named(%$params_types)
-    :                                compile($params_types);
+      ref $params_types eq 'ARRAY' ? signature(positional => $params_types)
+    : ref $params_types eq 'HASH'  ? signature(named => [%$params_types], bless => 0)
+    :                                signature(positional => [$params_types]);
   my $return_types_checker =
-    ref $return_types eq 'ARRAY' ? compile(@$return_types) : compile($return_types);
+    ref $return_types eq 'ARRAY' ? signature(positional => $return_types)
+    :                              signature(positional => [$return_types]);
 
   if ( ref $return_types eq 'ARRAY' ) {
     if ( $options->{skip_invocant} ) {
@@ -124,22 +123,24 @@ sub _is_env_ndebug {
 }
 
 sub wrap_sub {
-  state $check = multisig(
-    +{ message => << 'EOS' },
+  state $check = signature(
+    message => << 'EOS',
 USAGE: wrap_sub(\@parameter_types, $return_type, $subroutine)
     or wrap_sub(params => \@params_types, returns => $return_types, code => $subroutine)
 EOS
-    [ $ParamsTypes, $ReturnTypes, CodeRef ],
-    compile_named(
-      params => $ParamsTypes,
-      isa    => $ReturnTypes,
-      code   => CodeRef,
-    ),
+    multi => [
+      +{ positional => [ $ParamsTypes, $ReturnTypes, CodeRef ] },
+      +{
+        named_to_list => 1,
+        named => [
+          params => $ParamsTypes,
+          isa    => $ReturnTypes,
+          code   => CodeRef,
+        ],
+      },
+    ],
   );
-  my ($params_types, $return_types, $code) = do {
-    my @args = $check->(@_);
-    ${^_TYPE_PARAMS_MULTISIG} == 0 ? @args : @{ $args[0] }{qw( params isa code )};
-  };
+  my ($params_types, $return_types, $code) = $check->(@_);
 
   __PACKAGE__->new($params_types, $return_types, $code, +{ check => !_is_env_ndebug() });
 }
