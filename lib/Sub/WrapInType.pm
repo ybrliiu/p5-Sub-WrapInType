@@ -146,22 +146,24 @@ EOS
 }
 
 sub wrap_method {
-  state $check = multisig(
-    +{ message => << 'EOS' },
+  state $check = signature(
+    message => << 'EOS',
 USAGE: wrap_method(\@parameter_types, $return_type, $subroutine)
     or wrap_method(params => \@params_types, returns => $return_types, code => $subroutine)
 EOS
-    [ $ParamsTypes, $ReturnTypes, CodeRef ],
-    compile_named(
-      params => $ParamsTypes,
-      isa    => $ReturnTypes,
-      code   => CodeRef,
-    ),
+    multi => [
+      +{ positional => [ $ParamsTypes, $ReturnTypes, CodeRef ] },
+      +{
+        named_to_list => 1,
+        named => [
+          params => $ParamsTypes,
+          isa    => $ReturnTypes,
+          code   => CodeRef,
+        ],
+      },
+    ],
   );
-  my ($params_types, $return_types, $code) = do {
-    my @args = $check->(@_);
-    ${^_TYPE_PARAMS_MULTISIG} == 0 ? @args : @{ $args[0] }{qw( params isa code )};
-  };
+  my ($params_types, $return_types, $code) = $check->(@_);
 
   my $options = +{
     skip_invocant => 1,
