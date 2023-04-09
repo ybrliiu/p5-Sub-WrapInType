@@ -4,7 +4,7 @@
       "mp0liiu <mpoliiu@cpan.org>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Minilla/v3.1.10, CPAN::Meta::Converter version 2.150010",
+   "generated_by" : "Minilla/v3.1.21, CPAN::Meta::Converter version 2.150010",
    "license" : [
       "perl_5"
    ],
@@ -45,7 +45,7 @@
             "Class::InsideOut" : "0",
             "Exporter" : "0",
             "Sub::Util" : "1.40",
-            "Type::Tiny" : "1.012000",
+            "Type::Tiny" : "2.004000",
             "namespace::autoclean" : "0",
             "perl" : "5.010001"
          }
@@ -64,16 +64,17 @@
       "homepage" : "https://github.com/ybrliiu/p5-Sub-WrapInType",
       "repository" : {
          "type" : "git",
-         "url" : "git://github.com/ybrliiu/p5-Sub-WrapInType.git",
+         "url" : "https://github.com/ybrliiu/p5-Sub-WrapInType.git",
          "web" : "https://github.com/ybrliiu/p5-Sub-WrapInType"
       }
    },
-   "version" : "0.07",
+   "version" : "0.08",
    "x_authority" : "cpan:MPOLIIU",
    "x_contributors" : [
       "kfly8 <kfly@cpan.org>",
+      "kusuda <kusuda@mfac.jp>",
       "ybrliiu <raian@reeshome.org>"
    ],
-   "x_serialization_backend" : "JSON::PP version 4.04",
+   "x_serialization_backend" : "JSON::PP version 4.07",
    "x_static_install" : 1
 }
