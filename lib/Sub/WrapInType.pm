@@ -9,7 +9,7 @@ use Type::Params qw( signature );
 use Sub::Util qw( set_subname );
 use namespace::autoclean;
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 our @EXPORT  = qw( wrap_sub wrap_method install_sub install_method );
 
 readonly params    => my %params;
