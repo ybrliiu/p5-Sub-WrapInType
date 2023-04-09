@@ -141,19 +141,19 @@ subtest 'Run typed anonymous subroutine' => sub {
 subtest 'Confirm get_info' => sub {
   
   my $orig_info = +{
-    params => [ Int, Int ],
-    isa    => Int,
-    code   => sub {
+    params  => [ Int, Int ],
+    returns => Int,
+    code    => sub {
       my ($x, $y) = @_;
       $x + $y;
     },
   };
-  my $typed_code = wrap_sub @$orig_info{qw( params isa code )};
+  my $typed_code = wrap_sub @$orig_info{qw( params returns code )};
 
-  ok object {
+  is $typed_code, object {
     prop blessed => 'Sub::WrapInType';
-    call params    => $orig_info->{params};
-    call returns   => $orig_info->{returns};
+    call params    => string($orig_info->{params});
+    call returns   => string($orig_info->{returns});
     call code      => $orig_info->{code};
     call is_method => F;
   };
