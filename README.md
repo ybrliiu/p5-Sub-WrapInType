@@ -1,4 +1,4 @@
-[![Actions Status](https://github.com/ybrliiu/p5-Sub-WrapInType/actions/workflows/test.yml/badge.svg)](https://github.com/ybrliiu/p5-Sub-WrapInType/actions)[![Coverage Status](http://codecov.io/github/ybrliiu/p5-Sub-WrapInType/coverage.svg?branch=master)](https://codecov.io/github/ybrliiu/p5-Sub-WrapInType?branch=master) [![MetaCPAN Release](https://badge.fury.io/pl/Sub-WrapInType.svg)](https://metacpan.org/release/Sub-WrapInType)
+[![Actions Status](https://github.com/ybrliiu/p5-Sub-WrapInType/actions/workflows/test.yml/badge.svg)](https://github.com/ybrliiu/p5-Sub-WrapInType/actions) [![Coverage Status](http://codecov.io/github/ybrliiu/p5-Sub-WrapInType/coverage.svg?branch=master)](https://codecov.io/github/ybrliiu/p5-Sub-WrapInType?branch=master) [![MetaCPAN Release](https://badge.fury.io/pl/Sub-WrapInType.svg)](https://metacpan.org/release/Sub-WrapInType)
 # NAME
 
 Sub::WrapInType - Wrap the subroutine to validate the argument type and return type.

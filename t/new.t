@@ -55,7 +55,7 @@ subtest 'Use check option' => sub {
       code    => \&twice,
       options => +{ check => 1 },
     );
-    like dies { $wrong_params_type->(2) }, qr/Wrong number of parameters; got 1; expected 2/;
+    like dies { $wrong_params_type->(2) }, qr/Wrong number of parameters to (.+?); got 1; expected 2/;
 
     my $right = Sub::WrapInType->new(
       params  => Int,
@@ -108,7 +108,7 @@ subtest 'Use skip_invocant option' => sub {
     );
     ok $typed_code->is_method;
     ok lives { $typed_code->('SomeClass', 2) };
-    like dies { $typed_code->(2) }, qr/Wrong number of parameters; got 0; expected 1/;
+    like dies { $typed_code->(2) }, qr/Wrong number of parameters to (.+?); got 0; expected 1/;
   };
 
   subtest 'Disable' => sub {
@@ -119,7 +119,7 @@ subtest 'Use skip_invocant option' => sub {
       options => +{ skip_invocant => 0 },
     );
     ok !$typed_code->is_method;
-    like dies { $typed_code->('SomeClass', 2) }, qr/Wrong number of parameters; got 2; expected 1/;
+    like dies { $typed_code->('SomeClass', 2) }, qr/Wrong number of parameters to (.+?); got 2; expected 1/;
     like warning { $typed_code->(2) }, qr/Use of uninitialized value/;
   };
 
